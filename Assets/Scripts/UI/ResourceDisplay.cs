@@ -1,18 +1,18 @@
+
 using TMPro;
 using UnityEngine;
 
 public class ResourceDisplay : MonoBehaviour
 {
-    [Header("Resource Text References")]
+    [Header("Text References")]
     [SerializeField] private TextMeshProUGUI _goldText;
     [SerializeField] private TextMeshProUGUI _materialsText;
     [SerializeField] private TextMeshProUGUI _influenceText;
     
     private void Start()
     {
-        Debug.Log("ResourceDisplay Started!");
         EventManager.StartListening("ResourcesUpdated", OnResourcesUpdated);
-        UpdateDisplay(ResourceManager.Instance.GetPlayerResources());
+        UpdateDisplay(200, 100, 0); // Initial values
     }
     
     private void OnDestroy()
@@ -20,20 +20,33 @@ public class ResourceDisplay : MonoBehaviour
         EventManager.StopListening("ResourcesUpdated", OnResourcesUpdated);
     }
     
-    private void OnResourcesUpdated(object resourceData)
+    private void OnResourcesUpdated(object data)
     {
-        if (resourceData is ResourceData data)
+        if (data is ResourceData resourceData)
         {
-            Debug.Log($"UI Updating: Gold={data.Gold}, Materials={data.Materials}, Influence={data.Influence}");
-            UpdateDisplay(data);
+            UpdateDisplay(resourceData.Gold, resourceData.Materials, resourceData.Influence);
         }
     }
     
-    private void UpdateDisplay(ResourceData data)
+    private void UpdateDisplay(int gold, int materials, int influence)
     {
-        // Format with labels for clarity
-        _goldText.text = $"Gold: {data.Gold}";
-        _materialsText.text = $"Materials: {data.Materials}";
-        _influenceText.text = $"Influence: {data.Influence}";
+        _goldText.text = $"Gold: {gold}";
+        _materialsText.text = $"Materials: {materials}";
+        _influenceText.text = $"Influence: {influence}";
+    }
+}
+
+[System.Serializable]
+public class ResourceData
+{
+    public int Gold;
+    public int Materials;
+    public int Influence;
+    
+    public ResourceData(int gold, int materials, int influence)
+    {
+        Gold = gold;
+        Materials = materials;
+        Influence = influence;
     }
 }
