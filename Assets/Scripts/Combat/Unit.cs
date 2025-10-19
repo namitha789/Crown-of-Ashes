@@ -1,40 +1,74 @@
 using UnityEngine;
-   using UnityEngine.AI;
+using UnityEngine.AI;
 
-   public class Unit : MonoBehaviour
-   {
-       [SerializeField] private GameObject _selectionIndicator;
-       [SerializeField] private UnitData _unitData;
-       
-       private NavMeshAgent _navAgent;
-       private bool _isSelected;
-       
-       private void Awake()
-       {
-           _navAgent = GetComponent<NavMeshAgent>();
-           _selectionIndicator.SetActive(false);
-       }
-       
-       public void Select()
-       {
-           _isSelected = true;
-           _selectionIndicator.SetActive(true);
-       }
-       
-       public void Deselect()
-       {
-           _isSelected = false;
-           _selectionIndicator.SetActive(false);
-       }
-       
-       public void MoveTo(Vector3 position)
-       {
-           _navAgent.SetDestination(position);
-       }
-       
-       public void Attack(Unit target)
-       {
-           // To be implemented in Sprint 1
-           Debug.Log($"{gameObject.name} attacking {target.gameObject.name}");
-       }
-   }
+[RequireComponent(typeof(NavMeshAgent))]
+public class Unit : MonoBehaviour
+{
+    [Header("Unit Properties")]
+    [SerializeField] private string _unitName = "Unit";
+    [SerializeField] private int _maxHealth = 100;
+    
+    [Header("Visual Feedback")]
+    [SerializeField] private GameObject _selectionIndicator;
+    
+    private NavMeshAgent _navAgent;
+    private int _currentHealth;
+    private bool _isSelected;
+    
+    public bool IsSelected => _isSelected;
+    public string UnitName => _unitName;
+    
+    private void Awake()
+    {
+        _navAgent = GetComponent<NavMeshAgent>();
+        _currentHealth = _maxHealth;
+        
+        if (_selectionIndicator != null)
+        {
+            _selectionIndicator.SetActive(false);
+        }
+    }
+    
+    public void Select()
+    {
+        _isSelected = true;
+        if (_selectionIndicator != null)
+        {
+            _selectionIndicator.SetActive(true);
+        }
+    }
+    
+    public void Deselect()
+    {
+        _isSelected = false;
+        if (_selectionIndicator != null)
+        {
+            _selectionIndicator.SetActive(false);
+        }
+    }
+    
+    public void MoveTo(Vector3 position)
+    {
+        _navAgent.SetDestination(position);
+        EventManager.TriggerEvent("UnitMoved", position);
+    }
+    
+    public void Stop()
+    {
+        _navAgent.SetDestination(transform.position);
+    }
+    
+    public void TakeDamage(int damage)
+    {
+        _currentHealth -= damage;
+        if (_currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+    
+    private void Die()
+    {
+        Destroy(gameObject);
+    }
+}
