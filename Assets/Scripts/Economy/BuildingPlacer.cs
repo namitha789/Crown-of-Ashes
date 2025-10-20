@@ -2,6 +2,16 @@ using UnityEngine;
 
 public class BuildingPlacer : MonoBehaviour
 {
+    [Header("Building Prefabs")]
+    [SerializeField] private GameObject _barracksPrefab;
+    [SerializeField] private GameObject _resourceCollectorPrefab;
+    
+    [Header("Costs")]
+    [SerializeField] private int _barracksCostGold = 100;
+    [SerializeField] private int _barracksCostMaterials = 50;
+    [SerializeField] private int _collectorCostGold = 75;
+    [SerializeField] private int _collectorCostMaterials = 25;
+    
     [Header("Placement Settings")]
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private Material _validPlacementMaterial;
@@ -12,6 +22,7 @@ public class BuildingPlacer : MonoBehaviour
     private Camera _mainCamera;
     private int _buildingCostGold;
     private int _buildingCostMaterials;
+    private GameObject _buildingPrefab;
     
     private void Awake()
     {
@@ -35,25 +46,42 @@ public class BuildingPlacer : MonoBehaviour
         }
     }
     
-    public void StartPlacingBuilding(GameObject buildingPrefab, int goldCost, int materialsCost)
+    public void StartPlacingBarracks()
+    {
+        StartPlacingBuilding(_barracksPrefab, _barracksCostGold, _barracksCostMaterials);
+    }
+    
+    public void StartPlacingCollector()
+    {
+        StartPlacingBuilding(_resourceCollectorPrefab, _collectorCostGold, _collectorCostMaterials);
+    }
+    
+    private void StartPlacingBuilding(GameObject buildingPrefab, int goldCost, int materialsCost)
     {
         if (_isPlacing)
         {
             CancelPlacement();
         }
         
+        _buildingPrefab = buildingPrefab;
         _currentBuildingPreview = Instantiate(buildingPrefab);
         _buildingCostGold = goldCost;
         _buildingCostMaterials = materialsCost;
         _isPlacing = true;
         
-        // Disable colliders during preview
+        // Disable components during preview
         foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
         {
             col.enabled = false;
         }
         
-        Debug.Log($"Placing building: {buildingPrefab.name}");
+        Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
+        if (buildingComponent != null)
+        {
+            buildingComponent.enabled = false;
+        }
+        
+        Debug.Log($"Placing building. Cost: {goldCost} Gold, {materialsCost} Materials");
     }
     
     private void UpdateBuildingPreview()
@@ -64,10 +92,8 @@ public class BuildingPlacer : MonoBehaviour
         {
             _currentBuildingPreview.transform.position = hit.point;
             
-            // Check if placement is valid
             bool isValid = IsValidPlacement();
             
-            // Update material based on validity
             Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in renderers)
             {
@@ -78,8 +104,7 @@ public class BuildingPlacer : MonoBehaviour
     
     private bool IsValidPlacement()
     {
-        // Simple check - can be expanded
-        return true; // For now, always valid
+        return true;
     }
     
     private void TryPlaceBuilding()
@@ -88,17 +113,22 @@ public class BuildingPlacer : MonoBehaviour
         {
             if (ResourceManager.Instance.SpendResources(_buildingCostGold, _buildingCostMaterials, 0))
             {
-                // Enable colliders
+                // Re-enable components
                 foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
                 {
                     col.enabled = true;
                 }
                 
-                // Restore original material (create a proper building material)
+                Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
+                if (buildingComponent != null)
+                {
+                    buildingComponent.enabled = true;
+                }
+                
+                // Restore materials
                 Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
                 foreach (Renderer renderer in renderers)
                 {
-                    // You'll need to assign proper materials here
                     renderer.material.color = Color.white;
                 }
                 

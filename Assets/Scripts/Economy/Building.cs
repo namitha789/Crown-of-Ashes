@@ -1,54 +1,72 @@
 using UnityEngine;
 
-   public abstract class Building : MonoBehaviour
-   {
-       [SerializeField] protected string _buildingName;
-       [SerializeField] protected int _maxHealth = 100;
-       [SerializeField] protected float _constructionTime = 5f;
-       
-       protected int _currentHealth;
-       protected bool _isConstructed;
-       protected float _constructionProgress;
-       
-       protected virtual void Awake()
-       {
-           _currentHealth = _maxHealth;
-           _isConstructed = false;
-           _constructionProgress = 0f;
-       }
-       
-       protected virtual void Update()
-       {
-           if (!_isConstructed)
-           {
-               _constructionProgress += Time.deltaTime;
-               
-               if (_constructionProgress >= _constructionTime)
-               {
-                   CompleteConstruction();
-               }
-           }
-       }
-       
-       protected virtual void CompleteConstruction()
-       {
-           _isConstructed = true;
-           Debug.Log($"{_buildingName} construction completed!");
-       }
-       
-       public virtual void TakeDamage(int damage)
-       {
-           _currentHealth -= damage;
-           
-           if (_currentHealth <= 0)
-           {
-               DestroyBuilding();
-           }
-       }
-       
-       protected virtual void DestroyBuilding()
-       {
-           Debug.Log($"{_buildingName} has been destroyed!");
-           Destroy(gameObject);
-       }
-   }
+public class Building : MonoBehaviour
+{
+    [Header("Building Settings")]
+    [SerializeField] private string _buildingName = "Building";
+    [SerializeField] private int _maxHealth = 200;
+    [SerializeField] private float _constructionTime = 5f;
+    [SerializeField] private GameObject _constructionEffect;
+    
+    private int _currentHealth;
+    private float _constructionProgress;
+    private bool _isConstructing = true;
+    
+    public bool IsConstructing => _isConstructing;
+    public float ConstructionProgress => _constructionProgress / _constructionTime;
+    
+    private void Start()
+    {
+        _currentHealth = _maxHealth;
+        
+        if (_constructionEffect != null)
+        {
+            _constructionEffect.SetActive(true);
+        }
+    }
+    
+    private void Update()
+    {
+        if (_isConstructing)
+        {
+            _constructionProgress += Time.deltaTime;
+            
+            if (_constructionProgress >= _constructionTime)
+            {
+                CompleteConstruction();
+            }
+        }
+    }
+    
+    private void CompleteConstruction()
+    {
+        _isConstructing = false;
+        
+        if (_constructionEffect != null)
+        {
+            _constructionEffect.SetActive(false);
+        }
+        
+        EventManager.TriggerEvent("BuildingCompleted", this);
+        Debug.Log($"{_buildingName} construction complete!");
+    }
+    
+    public void TakeDamage(int damage)
+    {
+        if (_isConstructing) return;
+        
+        _currentHealth -= damage;
+        _currentHealth = Mathf.Max(_currentHealth, 0);
+        
+        if (_currentHealth <= 0)
+        {
+            DestroyBuilding();
+        }
+    }
+    
+    private void DestroyBuilding()
+    {
+        EventManager.TriggerEvent("BuildingDestroyed", this);
+        Destroy(gameObject);
+    }
+}
