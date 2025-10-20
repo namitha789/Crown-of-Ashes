@@ -773,6 +773,9 @@ GameObject:
   - component: {fileID: 468491996}
   - component: {fileID: 468491995}
   - component: {fileID: 468491994}
+  - component: {fileID: 468491999}
+  - component: {fileID: 468491998}
+  - component: {fileID: 468491997}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -820,6 +823,46 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &468491997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468491993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 899775d77dea4444cba087cd1f03805e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProgressionManager
+  _totalAshShards: 0
+  _totalRuns: 0
+  _totalWins: 0
+--- !u!114 &468491998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468491993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ead38be031ffe649879bf3ea31288bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CommanderManager
+  _currentCommander: {fileID: 11400000, guid: 5b7d1ca002b847e429f5004562a87912, type: 2}
+--- !u!114 &468491999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468491993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0df08c92d44276047986a4227c20b1d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatManager
 --- !u!1 &469833263
 GameObject:
   m_ObjectHideFlags: 0
