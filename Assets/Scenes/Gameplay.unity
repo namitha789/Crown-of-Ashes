@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 326818676}
   - component: {fileID: 326818675}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Ability Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1324,6 +1324,7 @@ GameObject:
   - component: {fileID: 711496921}
   - component: {fileID: 711496920}
   - component: {fileID: 711496919}
+  - component: {fileID: 711496922}
   m_Layer: 5
   m_Name: AbilityButton
   m_TagString: Untagged
@@ -1349,8 +1350,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 316.5}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchoredPosition: {x: 34, y: 230}
+  m_SizeDelta: {x: 200, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &711496919
 MonoBehaviour:
@@ -1434,6 +1435,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711496917}
   m_CullTransparentMesh: 1
+--- !u!114 &711496922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711496917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d086da67066b34ac1b560e593a8f8095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CommanderAbilityUI
+  _abilityButton: {fileID: 711496919}
+  _cooldownOverlay: {fileID: 1496394117}
+  _cooldownText: {fileID: 1260923058}
+  _abilityNameText: {fileID: 326818675}
 --- !u!1 &770336799
 GameObject:
   m_ObjectHideFlags: 0
@@ -1939,6 +1956,7 @@ GameObject:
   - component: {fileID: 1099352220}
   - component: {fileID: 1099352219}
   - component: {fileID: 1099352218}
+  - component: {fileID: 1099352222}
   m_Layer: 5
   m_Name: UI_Canvas
   m_TagString: Untagged
@@ -2035,6 +2053,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1099352222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1099352217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fc4c862eea2b44b9984f766e22ffb6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverUI
+  _victoryPanel: {fileID: 937008545}
+  _defeatPanel: {fileID: 1706948631}
+  _rewardsText: {fileID: 1195555894}
+  _continueButton: {fileID: 667932074}
 --- !u!1 &1142892703
 GameObject:
   m_ObjectHideFlags: 0
@@ -3252,6 +3286,7 @@ GameObject:
   - component: {fileID: 1428503058}
   - component: {fileID: 1428503060}
   - component: {fileID: 1428503059}
+  - component: {fileID: 1428503061}
   m_Layer: 5
   m_Name: SelectionInfoPanel
   m_TagString: Untagged
@@ -3276,7 +3311,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 121, y: 79}
+  m_AnchoredPosition: {x: 121, y: 36}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1428503059
@@ -3317,6 +3352,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1428503057}
   m_CullTransparentMesh: 1
+--- !u!114 &1428503061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428503057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c926102bcdde24471ad466195084b4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectionInfo
+  _infoText: {fileID: 469833265}
+  _selectionManager: {fileID: 62090460}
 --- !u!1 &1496394115
 GameObject:
   m_ObjectHideFlags: 0
@@ -3352,7 +3401,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.20000076, y: 0}
+  m_AnchoredPosition: {x: 0.19999695, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1496394117
@@ -4556,7 +4605,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 12.1, y: 209.1}
+  m_AnchoredPosition: {x: 12.1, y: 122}
   m_SizeDelta: {x: 450, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2086555230
