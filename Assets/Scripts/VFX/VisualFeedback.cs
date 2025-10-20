@@ -17,10 +17,16 @@ public class VisualFeedback : MonoBehaviour
     [Header("Resource VFX")]
     [SerializeField] private ParticleSystem _resourceGatherVFXPrefab;
 
+    // *** NEW: Add this header and field ***
+    [Header("Commander Ability VFX")]
+    [SerializeField] private GameObject _abilityEffectPrefab;
+
     // Object pools
     private ObjectPool _movementMarkerPool;
     private ObjectPool _attackVFXPool;
     private ObjectPool _resourceGatherVFXPool;
+    // *** NEW: Add this pool ***
+    private ObjectPool _abilityVFXPool;
 
     private void Awake()
     {
@@ -31,6 +37,10 @@ public class VisualFeedback : MonoBehaviour
             _attackVFXPool = new ObjectPool(_attackVFXPrefab.gameObject, 5);
         if (_resourceGatherVFXPrefab != null)
             _resourceGatherVFXPool = new ObjectPool(_resourceGatherVFXPrefab.gameObject, 5);
+        
+        // *** NEW: Initialize ability VFX pool ***
+        if (_abilityEffectPrefab != null)
+            _abilityVFXPool = new ObjectPool(_abilityEffectPrefab, 3);
     }
 
     private void Start()
@@ -38,6 +48,9 @@ public class VisualFeedback : MonoBehaviour
         EventManager.StartListening("UnitMoved", OnUnitMoved);
         EventManager.StartListening("UnitAttacked", OnUnitAttacked);
         EventManager.StartListening("ResourceGathered", OnResourceGathered);
+        
+        // *** NEW: Listen for ability events ***
+        EventManager.StartListening("AbilityUsed", OnAbilityUsed);
     }
 
     private void OnDestroy()
@@ -45,6 +58,9 @@ public class VisualFeedback : MonoBehaviour
         EventManager.StopListening("UnitMoved", OnUnitMoved);
         EventManager.StopListening("UnitAttacked", OnUnitAttacked);
         EventManager.StopListening("ResourceGathered", OnResourceGathered);
+        
+        // *** NEW: Stop listening ***
+        EventManager.StopListening("AbilityUsed", OnAbilityUsed);
     }
 
     // ----------------------------------------------------
@@ -94,8 +110,35 @@ public class VisualFeedback : MonoBehaviour
         }
     }
 
+    // *** NEW: Add this method ***
+    private void OnAbilityUsed(object data)
+    {
+        if (data is Vector3 position && _abilityEffectPrefab != null)
+        {
+            GameObject effect = _abilityVFXPool != null
+                ? _abilityVFXPool.GetObject()
+                : Instantiate(_abilityEffectPrefab, position, Quaternion.identity);
+
+            effect.transform.position = position;
+            effect.SetActive(true);
+
+            // If it has a particle system, use it
+            ParticleSystem ps = effect.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Play();
+                StartCoroutine(ReturnToPoolAfterParticles(effect, ps));
+            }
+            else
+            {
+                // Otherwise, just return to pool after 2 seconds
+                StartCoroutine(ReturnToPoolAfterDelay(effect, 2f));
+            }
+        }
+    }
+
     // ----------------------------------------------------
-    // Helper Methods
+    // Helper Methods (keep existing)
     // ----------------------------------------------------
     private void ShowMovementMarker(Vector3 position)
     {
