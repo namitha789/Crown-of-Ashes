@@ -29,13 +29,18 @@ public class ResourceManager : MonoBehaviour
         UpdateResourcesUI();
     }
     
+    public void SetStartingResources(int gold, int materials, int influence)
+    {
+        _playerResources = new ResourceData(gold, materials, influence);
+        UpdateResourcesUI();
+    }
+    
     public void AddResources(int gold, int materials, int influence)
     {
         _playerResources.Gold += gold;
         _playerResources.Materials += materials;
         _playerResources.Influence += influence;
         
-        Debug.Log($"Resources added: Gold+{gold}, Materials+{materials}, Influence+{influence}");
         UpdateResourcesUI();
     }
     
@@ -49,7 +54,6 @@ public class ResourceManager : MonoBehaviour
             _playerResources.Materials -= materials;
             _playerResources.Influence -= influence;
             
-            Debug.Log($"Resources spent: Gold-{gold}, Materials-{materials}, Influence-{influence}");
             UpdateResourcesUI();
             return true;
         }
