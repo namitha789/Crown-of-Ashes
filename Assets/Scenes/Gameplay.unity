@@ -206,6 +206,9 @@ MonoBehaviour:
   _selectableLayer:
     serializedVersion: 2
     m_Bits: 9
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &116457661
 GameObject:
   m_ObjectHideFlags: 0
