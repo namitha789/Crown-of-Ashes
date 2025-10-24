@@ -12,7 +12,16 @@ public class SelectionManager : MonoBehaviour
     
     private void Awake()
     {
+    }
+
+    private void Start()
+    {
         _mainCamera = Camera.main;
+        
+        if (_mainCamera == null)
+        {
+            Debug.LogError("Main Camera not found in SelectionManager!");
+        }
     }
     
     private void Update()

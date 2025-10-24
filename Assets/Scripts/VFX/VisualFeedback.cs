@@ -17,7 +17,6 @@ public class VisualFeedback : MonoBehaviour
     [Header("Resource VFX")]
     [SerializeField] private ParticleSystem _resourceGatherVFXPrefab;
 
-    // *** NEW: Add this header and field ***
     [Header("Commander Ability VFX")]
     [SerializeField] private GameObject _abilityEffectPrefab;
 
@@ -25,7 +24,7 @@ public class VisualFeedback : MonoBehaviour
     private ObjectPool _movementMarkerPool;
     private ObjectPool _attackVFXPool;
     private ObjectPool _resourceGatherVFXPool;
-    // *** NEW: Add this pool ***
+
     private ObjectPool _abilityVFXPool;
 
     private void Awake()
@@ -38,7 +37,6 @@ public class VisualFeedback : MonoBehaviour
         if (_resourceGatherVFXPrefab != null)
             _resourceGatherVFXPool = new ObjectPool(_resourceGatherVFXPrefab.gameObject, 5);
         
-        // *** NEW: Initialize ability VFX pool ***
         if (_abilityEffectPrefab != null)
             _abilityVFXPool = new ObjectPool(_abilityEffectPrefab, 3);
     }
