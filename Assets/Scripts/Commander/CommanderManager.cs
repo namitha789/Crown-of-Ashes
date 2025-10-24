@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class CommanderManager : MonoBehaviour
 {
@@ -28,8 +29,35 @@ public class CommanderManager : MonoBehaviour
     {
         if (_currentCommander != null)
         {
-            InitializeCommander();
+            // Wait for ResourceManager to initialize
+            StartCoroutine(InitializeAfterResourceManager());
         }
+    }
+
+    private IEnumerator InitializeAfterResourceManager()
+    {
+        // Wait until ResourceManager is ready
+        while (ResourceManager.Instance == null)
+        {
+            yield return null;
+        }
+        
+        InitializeCommander();
+    }
+    
+    private void InitializeCommander()
+    {
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogError("ResourceManager not found!");
+            return;
+        }
+        
+        ResourceManager.Instance.SetStartingResources(
+            _currentCommander.startingGold,
+            _currentCommander.startingMaterials,
+            0
+        );
     }
     
     private void Update()
@@ -45,15 +73,6 @@ public class CommanderManager : MonoBehaviour
                 EventManager.TriggerEvent("AbilityReady", null);
             }
         }
-    }
-    
-    private void InitializeCommander()
-    {
-        ResourceManager.Instance.SetStartingResources(
-            _currentCommander.startingGold,
-            _currentCommander.startingMaterials,
-            0
-        );
     }
     
     public void UseAbility(Vector3 position)

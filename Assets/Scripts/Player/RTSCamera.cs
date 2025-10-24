@@ -23,8 +23,17 @@ public class RTSCamera : MonoBehaviour
     
     private void Awake()
     {
+        // Remove camera initialization from here
+    }
+
+    private void Start()
+    {
         _mainCamera = Camera.main;
-        _cameraTransform = _mainCamera.transform;
+        
+        if (_mainCamera == null)
+        {
+            Debug.LogError("Main Camera not found! Make sure your camera has the 'MainCamera' tag.");
+        }
     }
     
     private void Update()

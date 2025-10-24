@@ -5,38 +5,54 @@ public class UnitController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private SelectionManager _selectionManager;
-    
+
     [Header("Movement Settings")]
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _formationSpacing = 2f;
-    
+
     private Camera _mainCamera;
-    
+
     private void Awake()
     {
-        _mainCamera = Camera.main;
+        // Remove this line:
+        // _mainCamera = Camera.main;
     }
-    
+
+    private void Start()
+    {
+        _mainCamera = Camera.main;
+        
+        if (_mainCamera == null)
+        {
+            Debug.LogError("Main Camera not found in UnitController!");
+        }
+    }
+
     private void Update()
     {
         HandleUnitCommands();
     }
-    
+
     private void HandleUnitCommands()
     {
+        if (_mainCamera == null)
+        {
+            _mainCamera = Camera.main;
+            return;
+        }
         if (Input.GetMouseButtonDown(1)) // Right click
         {
             List<Unit> selectedUnits = _selectionManager.GetSelectedUnits();
-            
+
             if (selectedUnits.Count > 0)
             {
                 Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-                
+
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     // Check if clicked on enemy unit (for attack - to be implemented)
                     Unit targetUnit = hit.collider.GetComponent<Unit>();
-                    
+
                     if (targetUnit != null && !selectedUnits.Contains(targetUnit))
                     {
                         // Attack command (placeholder)
@@ -46,7 +62,7 @@ public class UnitController : MonoBehaviour
                     {
                         // Move command
                         Vector3 targetPosition = hit.point;
-                        
+
                         if (selectedUnits.Count == 1)
                         {
                             selectedUnits[0].MoveTo(targetPosition);
@@ -60,23 +76,23 @@ public class UnitController : MonoBehaviour
             }
         }
     }
-    
+
     private void ApplyFormationMovement(List<Unit> units, Vector3 centerPosition)
     {
         int unitCount = units.Count;
         int columns = Mathf.CeilToInt(Mathf.Sqrt(unitCount));
-        
+
         for (int i = 0; i < unitCount; i++)
         {
             int row = i / columns;
             int col = i % columns;
-            
+
             Vector3 offset = new Vector3(
                 (col - columns / 2f) * _formationSpacing,
                 0,
                 (row - unitCount / columns / 2f) * _formationSpacing
             );
-            
+
             units[i].MoveTo(centerPosition + offset);
         }
     }
