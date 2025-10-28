@@ -18,31 +18,37 @@ public class RTSCamera : MonoBehaviour
     [Header("Camera Bounds")]
     [SerializeField] private Vector2 _cameraBounds = new Vector2(50f, 50f);
     
-    private Transform _cameraTransform;
     private Camera _mainCamera;
     
     private void Awake()
-    {
-        // Remove camera initialization from here
-    }
-
-    private void Start()
     {
         _mainCamera = Camera.main;
         
         if (_mainCamera == null)
         {
-            Debug.LogError("Main Camera not found! Make sure your camera has the 'MainCamera' tag.");
+            Debug.LogError("RTSCamera: No Main Camera found! Make sure camera is tagged 'MainCamera'");
+            enabled = false;
+            return;
         }
+        
+        Debug.Log($"RTSCamera: Initialized on {gameObject.name}. Controlling camera at {_mainCamera.transform.position}");
     }
     
     private void Update()
     {
+        if (_mainCamera == null)
+        {
+            Debug.LogError("RTSCamera: Main Camera is null in Update!");
+            return;
+        }
+        
         HandleKeyboardMovement();
+        
         if (_useEdgeScrolling)
         {
             HandleEdgeScrolling();
         }
+        
         HandleRotation();
         HandleZoom();
         ClampPosition();
@@ -61,10 +67,13 @@ public class RTSCamera : MonoBehaviour
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             inputDirection += Vector3.right;
         
-        Vector3 moveDirection = transform.forward * inputDirection.z + transform.right * inputDirection.x;
-        moveDirection.y = 0;
-        
-        transform.position += moveDirection.normalized * _moveSpeed * Time.deltaTime;
+        if (inputDirection != Vector3.zero)
+        {
+            // Use the parent transform (this gameObject) for movement direction
+            Vector3 moveDirection = transform.forward * inputDirection.z + transform.right * inputDirection.x;
+            moveDirection.y = 0;
+            transform.position += moveDirection.normalized * _moveSpeed * Time.deltaTime;
+        }
     }
     
     private void HandleEdgeScrolling()
@@ -80,10 +89,12 @@ public class RTSCamera : MonoBehaviour
         if (Input.mousePosition.y > Screen.height - _edgeScrollSize)
             inputDirection += Vector3.forward;
         
-        Vector3 moveDirection = transform.forward * inputDirection.z + transform.right * inputDirection.x;
-        moveDirection.y = 0;
-        
-        transform.position += moveDirection.normalized * _moveSpeed * Time.deltaTime;
+        if (inputDirection != Vector3.zero)
+        {
+            Vector3 moveDirection = transform.forward * inputDirection.z + transform.right * inputDirection.x;
+            moveDirection.y = 0;
+            transform.position += moveDirection.normalized * _moveSpeed * Time.deltaTime;
+        }
     }
     
     private void HandleRotation()
@@ -101,11 +112,11 @@ public class RTSCamera : MonoBehaviour
     private void HandleZoom()
     {
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-        if (scrollInput != 0)
+        if (scrollInput != 0 && _mainCamera != null)
         {
-            Vector3 pos = _cameraTransform.position;
+            Vector3 pos = _mainCamera.transform.localPosition;
             pos.y = Mathf.Clamp(pos.y - scrollInput * _zoomSpeed, _minHeight, _maxHeight);
-            _cameraTransform.position = pos;
+            _mainCamera.transform.localPosition = pos;
         }
     }
     
