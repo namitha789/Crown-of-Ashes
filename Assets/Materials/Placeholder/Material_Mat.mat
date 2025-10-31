@@ -9,10 +9,11 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Material_Mat
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: 2100000, guid: 6e881efd1be7bad4dbf43c4be495d7d9, type: 2}
+  m_Parent: {fileID: 2100000, guid: a649971892c144041bfbb98eb3639478, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _GLOSSYREFLECTIONS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -26,8 +27,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats:
-    - _Smoothness: 0.5
+    m_Floats: []
     m_Colors:
     - _BaseColor: {r: 0.30285814, g: 0.6698113, b: 0.15481488, a: 1}
     - _Color: {r: 0.3028581, g: 0.6698113, b: 0.15481484, a: 1}
