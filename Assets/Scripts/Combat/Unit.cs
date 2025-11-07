@@ -20,7 +20,8 @@ public class Unit : MonoBehaviour
     private bool _isSelected;
     private Unit _currentTarget;
     private float _attackTimer;
-    
+    private SimpleOutpost _currentOutpostTarget;
+
     public bool IsSelected => _isSelected;
     public string UnitName => _unitName;
     public bool IsPlayerUnit => _isPlayerUnit;
@@ -39,12 +40,12 @@ public class Unit : MonoBehaviour
     }
     
     private void Update()
+{
+    if (_currentTarget != null || _currentOutpostTarget != null)
     {
-        if (_currentTarget != null)
-        {
-            AttackTarget();
-        }
+        AttackTarget();
     }
+}
     
     public void Select()
     {
@@ -84,13 +85,26 @@ public class Unit : MonoBehaviour
         _navAgent.SetDestination(target.transform.position);
     }
     
+    public void SetOutpostTarget(SimpleOutpost outpost)
+{
+    if (outpost == null) return;
+    
+    _currentTarget = null; // Clear unit target
+    _currentOutpostTarget = outpost;
+    _navAgent.SetDestination(outpost.transform.position);
+}
+
+// Update ClearTarget to also clear outpost
+public void ClearTarget()
+{
+    _currentTarget = null;
+    _currentOutpostTarget = null;
+}
     private void AttackTarget()
+{
+    // Attack units
+    if (_currentTarget != null)
     {
-        if (_currentTarget == null)
-        {
-            return;
-        }
-        
         float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.transform.position);
         
         if (distanceToTarget <= _attackRange)
@@ -110,6 +124,36 @@ public class Unit : MonoBehaviour
             _navAgent.SetDestination(_currentTarget.transform.position);
         }
     }
+    // Attack outposts
+    else if (_currentOutpostTarget != null)
+    {
+        if (_currentOutpostTarget.IsDestroyed)
+        {
+            _currentOutpostTarget = null;
+            return;
+        }
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentOutpostTarget.transform.position);
+        
+        if (distanceToTarget <= _attackRange)
+        {
+            _navAgent.SetDestination(transform.position);
+            transform.LookAt(_currentOutpostTarget.transform);
+            
+            _attackTimer += Time.deltaTime;
+            if (_attackTimer >= _attackSpeed)
+            {
+                _currentOutpostTarget.TakeDamage(_attackDamage);
+                Debug.Log($"{_unitName} attacked outpost for {_attackDamage} damage!");
+                _attackTimer = 0f;
+            }
+        }
+        else
+        {
+            _navAgent.SetDestination(_currentOutpostTarget.transform.position);
+        }
+    }
+}
     
     public void TakeDamage(int damage)
     {

@@ -36,12 +36,16 @@ public class SelectionManager : MonoBehaviour
         {
             Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             
+            bool clickedOnUnit = false;
+            
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f, _selectableLayer))
             {
                 Unit unit = hit.collider.GetComponent<Unit>();
                 
                 if (unit != null && unit.IsPlayerUnit)
                 {
+                    clickedOnUnit = true;
+                    
                     if (Input.GetKey(KeyCode.LeftShift))
                     {
                         if (!_selectedUnits.Contains(unit))
@@ -55,13 +59,12 @@ public class SelectionManager : MonoBehaviour
                         SelectUnit(unit);
                     }
                 }
-                else
-                {
-                    if (!Input.GetKey(KeyCode.LeftShift))
-                    {
-                        DeselectAll();
-                    }
-                }
+            }
+            
+            // Only deselect if clicked empty space (not on a unit)
+            if (!clickedOnUnit && !Input.GetKey(KeyCode.LeftShift))
+            {
+                DeselectAll();
             }
         }
         
@@ -79,9 +82,20 @@ public class SelectionManager : MonoBehaviour
             
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
             {
-                // Check if clicked on enemy
-                Unit enemyUnit = hit.collider.GetComponent<Unit>();
+                // Check if clicked on outpost
+                SimpleOutpost outpost = hit.collider.GetComponent<SimpleOutpost>();
+                if (outpost != null && !outpost.IsDestroyed)
+                {
+                    // Attack outpost command
+                    foreach (Unit unit in _selectedUnits)
+                    {
+                        unit.SetOutpostTarget(outpost);
+                    }
+                    return;
+                }
                 
+                // Check if clicked on enemy unit
+                Unit enemyUnit = hit.collider.GetComponent<Unit>();
                 if (enemyUnit != null && !enemyUnit.IsPlayerUnit)
                 {
                     // Attack command
@@ -89,20 +103,19 @@ public class SelectionManager : MonoBehaviour
                     {
                         unit.SetTarget(enemyUnit);
                     }
+                    return;
+                }
+                
+                // Move command
+                Vector3 targetPosition = hit.point;
+                
+                if (_selectedUnits.Count == 1)
+                {
+                    _selectedUnits[0].MoveTo(targetPosition);
                 }
                 else
                 {
-                    // Move command
-                    Vector3 targetPosition = hit.point;
-                    
-                    if (_selectedUnits.Count == 1)
-                    {
-                        _selectedUnits[0].MoveTo(targetPosition);
-                    }
-                    else
-                    {
-                        ApplyFormationMovement(_selectedUnits, targetPosition);
-                    }
+                    ApplyFormationMovement(_selectedUnits, targetPosition);
                 }
             }
         }
