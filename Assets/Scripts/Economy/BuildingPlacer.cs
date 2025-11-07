@@ -5,12 +5,15 @@ public class BuildingPlacer : MonoBehaviour
     [Header("Building Prefabs")]
     [SerializeField] private GameObject _barracksPrefab;
     [SerializeField] private GameObject _resourceCollectorPrefab;
+    [SerializeField] private GameObject _towerPrefab;
     
     [Header("Costs")]
     [SerializeField] private int _barracksCostGold = 100;
     [SerializeField] private int _barracksCostMaterials = 50;
     [SerializeField] private int _collectorCostGold = 75;
     [SerializeField] private int _collectorCostMaterials = 25;
+    [SerializeField] private int _towerCostGold = 150;
+    [SerializeField] private int _towerCostMaterials = 75;
     
     [Header("Placement Settings")]
     [SerializeField] private LayerMask _groundLayer;
@@ -56,6 +59,11 @@ public class BuildingPlacer : MonoBehaviour
         StartPlacingBuilding(_resourceCollectorPrefab, _collectorCostGold, _collectorCostMaterials);
     }
     
+    public void StartPlacingTower()
+    {
+        StartPlacingBuilding(_towerPrefab, _towerCostGold, _towerCostMaterials);
+    }
+    
     private void StartPlacingBuilding(GameObject buildingPrefab, int goldCost, int materialsCost)
     {
         if (_isPlacing)
@@ -90,7 +98,14 @@ public class BuildingPlacer : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, 1000f, _groundLayer))
         {
-            _currentBuildingPreview.transform.position = hit.point;
+            // Calculate the building's bounds to position it correctly on the ground
+            Bounds buildingBounds = GetBuildingBounds(_currentBuildingPreview);
+            float yOffset = buildingBounds.min.y - _currentBuildingPreview.transform.position.y;
+            
+            Vector3 position = hit.point;
+            position.y -= yOffset; // Adjust Y so bottom of building sits on ground
+            
+            _currentBuildingPreview.transform.position = position;
             
             bool isValid = IsValidPlacement();
             
@@ -100,6 +115,53 @@ public class BuildingPlacer : MonoBehaviour
                 renderer.material = isValid ? _validPlacementMaterial : _invalidPlacementMaterial;
             }
         }
+    }
+    
+    private Bounds GetBuildingBounds(GameObject building)
+    {
+        Bounds bounds = new Bounds(building.transform.position, Vector3.zero);
+        bool hasBounds = false;
+        
+        // Use renderers for bounds (colliders are disabled during preview)
+        Renderer[] renderers = building.GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer.enabled && renderer.bounds.size != Vector3.zero)
+            {
+                if (!hasBounds)
+                {
+                    bounds = renderer.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(renderer.bounds);
+                }
+            }
+        }
+        
+        // If no renderers found, try colliders (even if disabled, they might have bounds)
+        if (!hasBounds)
+        {
+            Collider[] colliders = building.GetComponentsInChildren<Collider>();
+            foreach (Collider col in colliders)
+            {
+                if (col.bounds.size != Vector3.zero)
+                {
+                    if (!hasBounds)
+                    {
+                        bounds = col.bounds;
+                        hasBounds = true;
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(col.bounds);
+                    }
+                }
+            }
+        }
+        
+        return bounds;
     }
     
     private bool IsValidPlacement()
