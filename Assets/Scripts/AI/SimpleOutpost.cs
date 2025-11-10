@@ -11,6 +11,10 @@ public class SimpleOutpost : MonoBehaviour
     [SerializeField] private int _rewardShards = 50;
     
     private int _currentHealth;
+    private bool _isDestroyed = false;
+    
+    public bool IsDestroyed => _isDestroyed;
+    public int CurrentHealth => _currentHealth;
     
     private void Start()
     {
@@ -48,6 +52,8 @@ public class SimpleOutpost : MonoBehaviour
     
     private void DestroyOutpost()
     {
+        _isDestroyed = true;
+        
         // Give rewards
         ResourceManager.Instance.AddResources(_rewardGold, 0, 0);
         ProgressionManager.Instance.AddAshShards(_rewardShards);

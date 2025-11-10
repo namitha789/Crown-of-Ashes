@@ -11,6 +11,7 @@ public class Unit : MonoBehaviour
         Moving,
         Chasing,
         Attacking,
+        AttackingOutpost,
         Dead
     }
 
@@ -35,6 +36,7 @@ public class Unit : MonoBehaviour
     private int _currentHealth;
     private bool _isSelected;
     private Unit _currentTarget;
+    private SimpleOutpost _currentOutpostTarget;
     private float _attackTimer;
     private bool _isDead = false;
     private float _lastAttackTime = 0f;
@@ -79,6 +81,9 @@ public class Unit : MonoBehaviour
             case CombatState.Attacking:
                 HandleAttackingState();
                 break;
+            case CombatState.AttackingOutpost:
+                HandleAttackingOutpostState();
+                break;
         }
     }
 
@@ -89,6 +94,7 @@ public class Unit : MonoBehaviour
         if (enemy != null)
         {
             _currentTarget = enemy;
+            _currentOutpostTarget = null;
             ChangeState(CombatState.Chasing);
         }
     }
@@ -106,6 +112,7 @@ public class Unit : MonoBehaviour
         if (enemy != null)
         {
             _currentTarget = enemy;
+            _currentOutpostTarget = null;
             ChangeState(CombatState.Chasing);
         }
     }
@@ -156,10 +163,36 @@ public class Unit : MonoBehaviour
         }
     }
 
+    private void HandleAttackingOutpostState()
+    {
+        if (_currentOutpostTarget == null || _currentOutpostTarget.IsDestroyed)
+        {
+            _currentOutpostTarget = null;
+            ChangeState(CombatState.Idle);
+            return;
+        }
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentOutpostTarget.transform.position);
+        
+        if (distanceToTarget > _attackRange)
+        {
+            // Move closer to outpost
+            _navAgent.SetDestination(_currentOutpostTarget.transform.position);
+            _navAgent.isStopped = false;
+        }
+        else
+        {
+            // Stay in place and attack
+            _navAgent.isStopped = true;
+            transform.LookAt(_currentOutpostTarget.transform);
+            AttackOutpost(_currentOutpostTarget);
+        }
+    }
+
     private void ChangeState(CombatState newState)
     {
         // Reset state-specific settings when leaving a state
-        if (_currentState == CombatState.Attacking)
+        if (_currentState == CombatState.Attacking || _currentState == CombatState.AttackingOutpost)
         {
             _navAgent.isStopped = false;
         }
@@ -192,6 +225,27 @@ public class Unit : MonoBehaviour
         Debug.Log($"{gameObject.name} attacked {target.gameObject.name} for {_attackDamage} damage");
     }
     
+    private void AttackOutpost(SimpleOutpost outpost)
+    {
+        if (outpost == null || outpost.IsDestroyed) return;
+        
+        // Check if enough time has passed since last attack
+        if (Time.time < _lastAttackTime + _attackSpeed) return;
+        
+        // Check if target is in range
+        float distanceToTarget = Vector3.Distance(transform.position, outpost.transform.position);
+        if (distanceToTarget > _attackRange) return;
+        
+        // Perform attack
+        _lastAttackTime = Time.time;
+        outpost.TakeDamage(_attackDamage);
+        
+        // Face the target
+        transform.LookAt(outpost.transform);
+        
+        Debug.Log($"{gameObject.name} attacked outpost for {_attackDamage} damage!");
+    }
+    
     public void TakeDamage(int damage)
     {
         if (_isDead) return;
@@ -206,6 +260,8 @@ public class Unit : MonoBehaviour
             Damage = damage,
             HitPosition = transform.position
         });
+        
+        EventManager.TriggerEvent("UnitHealthChanged", this);
         
         Debug.Log($"{gameObject.name} took {damage} damage. HP: {_currentHealth}/{_maxHealth}");
         
@@ -293,11 +349,13 @@ public class Unit : MonoBehaviour
         if (_isDead) return;
         
         _currentTarget = null;
+        _currentOutpostTarget = null;
         _navAgent.SetDestination(targetPosition);
         _navAgent.isStopped = false;
         
         ChangeState(CombatState.Moving);
         
+        EventManager.TriggerEvent("UnitMoved", targetPosition);
         Debug.Log($"{gameObject.name} moving to {targetPosition}");
     }
 
@@ -306,9 +364,34 @@ public class Unit : MonoBehaviour
         if (_isDead) return;
         
         _currentTarget = target;
+        _currentOutpostTarget = null;
         ChangeState(CombatState.Chasing);
         
         Debug.Log($"{gameObject.name} targeting {target.gameObject.name}");
+    }
+    
+    public void SetOutpostTarget(SimpleOutpost outpost)
+    {
+        if (_isDead || outpost == null) return;
+        
+        _currentTarget = null;
+        _currentOutpostTarget = outpost;
+        ChangeState(CombatState.AttackingOutpost);
+        
+        Debug.Log($"{gameObject.name} targeting outpost");
+    }
+    
+    public void ClearTarget()
+    {
+        _currentTarget = null;
+        _currentOutpostTarget = null;
+        ChangeState(CombatState.Idle);
+    }
+    
+    public void AttackMove(Vector3 position)
+    {
+        MoveTo(position);
+        // The unit will automatically engage enemies it encounters
     }
 
     public void Select()

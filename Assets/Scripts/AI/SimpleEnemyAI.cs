@@ -1,112 +1,296 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(Unit), typeof(NavMeshAgent))]
 public class SimpleEnemyAI : MonoBehaviour
 {
     [Header("AI Settings")]
-    [SerializeField] private float _detectionRange = 10f;
-    [SerializeField] private float _attackRange = 2f;
-    [SerializeField] private Transform _guardPosition;
+    [SerializeField] private float _detectionRadius = 10f;
+    [SerializeField] private float _chaseRadius = 15f;
+    [SerializeField] private float _returnDistance = 20f;
+    [SerializeField] private LayerMask _playerLayer;
     
-    private Unit _unit;
-    private NavMeshAgent _navAgent;
+    [Header("Patrol Settings")]
+    [SerializeField] private Transform[] _patrolPoints;
+    [SerializeField] private float _patrolSpeed = 2f;
+    [SerializeField] private float _chaseSpeed = 4f;
+    [SerializeField] private float _waypointReachDistance = 1f;
+    
+    private NavMeshAgent _agent;
+    private Unit _unitComponent;
+    private Vector3 _guardPosition;
     private Unit _currentTarget;
-    private float _searchTimer;
+    private int _currentPatrolIndex = 0;
+    private AIState _currentState = AIState.Patrolling;
     
-    private void Awake()
+    private enum AIState
     {
-        _unit = GetComponent<Unit>();
-        _navAgent = GetComponent<NavMeshAgent>();
+        Patrolling,
+        Chasing,
+        Returning,
+        Guarding
+    }
+    
+    private void Start()
+    {
+        _agent = GetComponent<NavMeshAgent>();
+        _unitComponent = GetComponent<Unit>();
+        _guardPosition = transform.position;
         
-        if (_guardPosition == null)
+        _agent.speed = _patrolSpeed;
+        
+        // Auto-find patrol points if array is empty or all null
+        if (_patrolPoints == null || _patrolPoints.Length == 0 || AllPatrolPointsNull())
         {
-            _guardPosition = transform;
+            FindPatrolPointsInChildren();
+        }
+        
+        if (_patrolPoints != null && _patrolPoints.Length > 0 && !AllPatrolPointsNull())
+        {
+            GoToNextPatrolPoint();
+        }
+    }
+    
+    private bool AllPatrolPointsNull()
+    {
+        if (_patrolPoints == null || _patrolPoints.Length == 0) return true;
+        
+        foreach (Transform point in _patrolPoints)
+        {
+            if (point != null) return false;
+        }
+        return true;
+    }
+    
+    private void FindPatrolPointsInChildren()
+    {
+        // Look for child objects named "PatrolPoint" or with "PatrolPoint" in the name
+        List<Transform> foundPoints = new List<Transform>();
+        
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform child = transform.GetChild(i);
+            if (child.name.Contains("PatrolPoint") || child.name.Contains("Patrol Point"))
+            {
+                foundPoints.Add(child);
+            }
+        }
+        
+        // Also check for a parent "PatrolPoints" container
+        Transform parent = transform.parent;
+        if (parent != null)
+        {
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform sibling = parent.GetChild(i);
+                if (sibling != transform && (sibling.name.Contains("PatrolPoint") || sibling.name.Contains("Patrol Point")))
+                {
+                    if (!foundPoints.Contains(sibling))
+                    {
+                        foundPoints.Add(sibling);
+                    }
+                }
+            }
+        }
+        
+        if (foundPoints.Count > 0)
+        {
+            _patrolPoints = foundPoints.ToArray();
+            Debug.Log($"{gameObject.name}: Auto-found {_patrolPoints.Length} patrol points");
         }
     }
     
     private void Update()
     {
-        _searchTimer += Time.deltaTime;
+        if (_unitComponent == null || _unitComponent.CurrentHealth <= 0) return;
         
-        if (_searchTimer >= 0.5f)
+        switch (_currentState)
         {
-            FindTarget();
-            _searchTimer = 0f;
-        }
-        
-        if (_currentTarget != null)
-        {
-            AttackTarget();
-        }
-        else
-        {
-            ReturnToGuardPosition();
+            case AIState.Patrolling:
+                HandlePatrolState();
+                break;
+            case AIState.Chasing:
+                HandleChaseState();
+                break;
+            case AIState.Returning:
+                HandleReturnState();
+                break;
+            case AIState.Guarding:
+                HandleGuardState();
+                break;
         }
     }
     
-    private void FindTarget()
+    private void HandlePatrolState()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, _detectionRange);
-        
-        float closestDistance = float.MaxValue;
-        Unit closestEnemy = null;
-        
-        foreach (Collider hit in hits)
+        // Check for player units
+        Unit player = FindNearestPlayer();
+        if (player != null)
         {
-            Unit unit = hit.GetComponent<Unit>();
-            if (unit != null && unit.IsPlayerUnit)
+            _currentTarget = player;
+            ChangeState(AIState.Chasing);
+            return;
+        }
+        
+        // Continue patrol
+        if (_patrolPoints == null || _patrolPoints.Length == 0 || AllPatrolPointsNull())
+        {
+            ChangeState(AIState.Guarding);
+            return;
+        }
+        
+        if (!_agent.pathPending && _agent.remainingDistance <= _waypointReachDistance)
+        {
+            GoToNextPatrolPoint();
+        }
+    }
+    
+    private void GoToNextPatrolPoint()
+    {
+        if (_patrolPoints == null || _patrolPoints.Length == 0) return;
+        
+        // Find next valid patrol point
+        int attempts = 0;
+        while (attempts < _patrolPoints.Length)
+        {
+            if (_patrolPoints[_currentPatrolIndex] != null)
             {
-                float distance = Vector3.Distance(transform.position, unit.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestEnemy = unit;
-                }
+                _agent.SetDestination(_patrolPoints[_currentPatrolIndex].position);
+                _currentPatrolIndex = (_currentPatrolIndex + 1) % _patrolPoints.Length;
+                return;
             }
+            _currentPatrolIndex = (_currentPatrolIndex + 1) % _patrolPoints.Length;
+            attempts++;
         }
         
-        _currentTarget = closestEnemy;
+        // No valid patrol points found
+        ChangeState(AIState.Guarding);
     }
     
-    private void AttackTarget()
+    private void HandleChaseState()
     {
-        if (_currentTarget == null)
+        if (_currentTarget == null || _currentTarget.CurrentHealth <= 0)
         {
+            _currentTarget = null;
+            _unitComponent.ClearTarget(); // Clear Unit's target!
+            ChangeState(AIState.Returning);
             return;
         }
         
         float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.transform.position);
+        float distanceFromGuard = Vector3.Distance(transform.position, _guardPosition);
         
-        if (distanceToTarget > _detectionRange)
+        // Check if target escaped too far
+        if (distanceToTarget > _chaseRadius || distanceFromGuard > _returnDistance)
         {
             _currentTarget = null;
+            _unitComponent.ClearTarget(); // Clear Unit's target!
+            ChangeState(AIState.Returning);
             return;
         }
         
-        _unit.SetTarget(_currentTarget);
+        // Tell Unit component to attack the target
+        _unitComponent.SetTarget(_currentTarget);
+        
+        // Move towards target
+        _agent.SetDestination(_currentTarget.transform.position);
     }
     
-    private void ReturnToGuardPosition()
+    private void HandleReturnState()
     {
-        float distanceToGuard = Vector3.Distance(transform.position, _guardPosition.position);
+        // Don't detect players while returning!
         
-        if (distanceToGuard > 2f)
+        float distToGuard = Vector3.Distance(transform.position, _guardPosition);
+        
+        // Check if reached guard position
+        if (distToGuard <= _waypointReachDistance)
         {
-            _navAgent.SetDestination(_guardPosition.position);
+            if (_patrolPoints != null && _patrolPoints.Length > 0 && !AllPatrolPointsNull())
+            {
+                ChangeState(AIState.Patrolling);
+            }
+            else
+            {
+                ChangeState(AIState.Guarding);
+            }
+            return;
         }
-        else
+        
+        // Return to guard position
+        _agent.SetDestination(_guardPosition);
+    }
+    
+    private void HandleGuardState()
+    {
+        // Check for player units
+        Unit player = FindNearestPlayer();
+        if (player != null)
         {
-            _navAgent.SetDestination(transform.position);
+            _currentTarget = player;
+            ChangeState(AIState.Chasing);
+        }
+    }
+    
+    private Unit FindNearestPlayer()
+    {
+        Collider[] players = Physics.OverlapSphere(transform.position, _detectionRadius, _playerLayer);
+        
+        Unit nearestPlayer = null;
+        float nearestDistance = Mathf.Infinity;
+        
+        foreach (Collider playerCollider in players)
+        {
+            Unit player = playerCollider.GetComponent<Unit>();
+            if (player != null && player.IsPlayerUnit && player.CurrentHealth > 0)
+            {
+                float distance = Vector3.Distance(transform.position, player.transform.position);
+                float distanceFromGuard = Vector3.Distance(transform.position, _guardPosition);
+                
+                // Don't detect players if we're too far from guard position
+                if (distanceFromGuard > _returnDistance)
+                {
+                    continue;
+                }
+                
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestPlayer = player;
+                }
+            }
+        }
+        
+        return nearestPlayer;
+    }
+    
+    private void ChangeState(AIState newState)
+    {
+        _currentState = newState;
+        
+        // Adjust speed based on state
+        switch (newState)
+        {
+            case AIState.Chasing:
+                _agent.speed = _chaseSpeed;
+                break;
+            default:
+                _agent.speed = _patrolSpeed;
+                break;
         }
     }
     
     private void OnDrawGizmosSelected()
     {
+        // Detection radius (yellow)
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, _detectionRange);
+        Gizmos.DrawWireSphere(transform.position, _detectionRadius);
         
+        // Chase radius (orange)
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireSphere(transform.position, _chaseRadius);
+        
+        // Return distance (red)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, _attackRange);
+        Gizmos.DrawWireSphere(transform.position, _returnDistance);
     }
 }
