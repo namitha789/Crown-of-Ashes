@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2134022273871795195}
   - component: {fileID: 8387583630855864384}
   - component: {fileID: 605897546052364262}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 1489034458444560805}
   - component: {fileID: 3810710693936699335}
   - component: {fileID: 2746430842243251654}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 1344439021888826891}
   - component: {fileID: 4502562984084513594}
   - component: {fileID: 8941588704958838066}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SelectionIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -323,7 +323,7 @@ GameObject:
   - component: {fileID: 5908775657668834419}
   - component: {fileID: 5862050941372548177}
   - component: {fileID: 2059223126963407755}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Unit_Test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ Transform:
   m_GameObject: {fileID: 2476698572350630159}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -413,7 +413,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -459,12 +459,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unit
   _unitName: Unit
+  _isPlayerUnit: 1
   _maxHealth: 100
   _attackDamage: 10
   _attackRange: 2
   _attackSpeed: 1
-  _isPlayerUnit: 1
+  _detectionRange: 10
   _selectionIndicator: {fileID: 1383882356633543760}
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &8737657190140512506
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,7 +480,7 @@ GameObject:
   - component: {fileID: 7846089929060410634}
   - component: {fileID: 3703427772991625278}
   - component: {fileID: 7470303689985729130}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}

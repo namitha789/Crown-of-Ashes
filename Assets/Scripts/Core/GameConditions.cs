@@ -37,7 +37,7 @@ public class GameConditions : MonoBehaviour
         if (data is Unit unit && unit.IsPlayerUnit)
         {
             // Check if all player units are dead
-            Unit[] allUnits = FindObjectsOfType<Unit>();
+            Unit[] allUnits = FindObjectsByType<Unit>(FindObjectsSortMode.None);
             bool hasPlayerUnits = false;
             
             foreach (Unit u in allUnits)

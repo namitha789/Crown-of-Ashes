@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1344439021888826891}
   - component: {fileID: 4502562984084513594}
   - component: {fileID: 8941588704958838066}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SelectionIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,7 +128,7 @@ GameObject:
   - component: {fileID: 5862050941372548177}
   - component: {fileID: 2059223126963407755}
   - component: {fileID: 3528806221952095781}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyUnit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -263,12 +263,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unit
   _unitName: Unit
+  _isPlayerUnit: 0
   _maxHealth: 100
   _attackDamage: 10
   _attackRange: 2
   _attackSpeed: 1
-  _isPlayerUnit: 0
+  _detectionRange: 10
   _selectionIndicator: {fileID: 1383882356633543760}
+  _enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &3528806221952095781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,7 +280,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2476698572350630159}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c69d1d49b9d8c21429a432c892c63a62, type: 3}
   m_Name: 
