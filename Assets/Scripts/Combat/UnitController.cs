@@ -8,15 +8,10 @@ public class UnitController : MonoBehaviour
 
     [Header("Movement Settings")]
     [SerializeField] private LayerMask _groundLayer;
+    [SerializeField] private LayerMask _enemyLayer;
     [SerializeField] private float _formationSpacing = 2f;
 
     private Camera _mainCamera;
-
-    private void Awake()
-    {
-        // Remove this line:
-        // _mainCamera = Camera.main;
-    }
 
     private void Start()
     {
@@ -40,6 +35,7 @@ public class UnitController : MonoBehaviour
             _mainCamera = Camera.main;
             return;
         }
+        
         if (Input.GetMouseButtonDown(1)) // Right click
         {
             List<Unit> selectedUnits = _selectionManager.GetSelectedUnits();
@@ -50,13 +46,21 @@ public class UnitController : MonoBehaviour
 
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
-                    // Check if clicked on enemy unit (for attack - to be implemented)
+                    // Check if clicked on enemy unit
                     Unit targetUnit = hit.collider.GetComponent<Unit>();
 
-                    if (targetUnit != null && !selectedUnits.Contains(targetUnit))
+                    if (targetUnit != null && !targetUnit.IsDead)
                     {
-                        // Attack command (placeholder)
-                        Debug.Log($"Attack command to {targetUnit.UnitName}");
+                        // Check if it's an enemy
+                        if (targetUnit.IsPlayerUnit != selectedUnits[0].IsPlayerUnit)
+                        {
+                            // Attack command
+                            foreach (Unit unit in selectedUnits)
+                            {
+                                unit.SetTarget(targetUnit);
+                            }
+                            Debug.Log($"Attack command to {targetUnit.UnitName}");
+                        }
                     }
                     else if ((_groundLayer.value & (1 << hit.collider.gameObject.layer)) != 0)
                     {

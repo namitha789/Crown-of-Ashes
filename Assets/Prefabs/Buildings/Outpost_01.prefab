@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleOutpost
   _maxHealth: 20
-  _enemyUnitPrefab: {fileID: 2476698572350630159, guid: 193583356990e4f43851cc517fc29ee7, type: 3}
+  _enemyUnitPrefab: {fileID: 2476698572350630159, guid: 06c753ef820336c49aebd7d5f75f6393, type: 3}
   _spawnPoints:
   - {fileID: 3208565689044856084}
   - {fileID: 5871565411244332119}

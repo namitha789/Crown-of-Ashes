@@ -11,8 +11,8 @@ TagManager:
   - Unit
   - Water
   - UI
-  - Enemy
-  - Selectable
+  - EnemyUnits
+  - PlayerUnits
   - Ground
   - 
   - 
