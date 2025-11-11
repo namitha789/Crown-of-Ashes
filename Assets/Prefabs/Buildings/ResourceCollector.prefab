@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2684430698816999035}
   - component: {fileID: 3068607516403468319}
   - component: {fileID: 514867009975070104}
+  - component: {fileID: 3520885463496457410}
   m_Layer: 0
   m_Name: ResourceCollector
   m_TagString: Untagged
@@ -128,3 +129,30 @@ MonoBehaviour:
   _maxHealth: 200
   _constructionTime: 6
   _constructionEffect: {fileID: 0}
+  _currentLevel: 1
+  _maxLevel: 3
+  _upgradeGoldCost: 100
+  _upgradeMaterialsCost: 50
+--- !u!114 &3520885463496457410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5792331774927221572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1c407c0d724dc5498f23a88dc9446bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceCollector
+  _buildingName: Building
+  _maxHealth: 200
+  _constructionTime: 5
+  _constructionEffect: {fileID: 0}
+  _currentLevel: 1
+  _maxLevel: 3
+  _upgradeGoldCost: 100
+  _upgradeMaterialsCost: 50
+  _goldIncomeAmount: 5
+  _materialsIncomeAmount: 3
+  _incomeInterval: 5
