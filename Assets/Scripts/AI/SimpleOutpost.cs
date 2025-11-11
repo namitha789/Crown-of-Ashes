@@ -15,6 +15,9 @@ public class SimpleOutpost : MonoBehaviour
     
     public bool IsDestroyed => _isDestroyed;
     public int CurrentHealth => _currentHealth;
+    public int MaxHealth => _maxHealth;
+
+
     
     private void Start()
     {
