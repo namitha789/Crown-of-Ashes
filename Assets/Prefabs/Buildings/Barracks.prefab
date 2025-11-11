@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 3007871093412636722}
   - component: {fileID: 2684430698816999035}
   - component: {fileID: 3068607516403468319}
-  - component: {fileID: 514867009975070104}
-  m_Layer: 0
+  - component: {fileID: 5795577232150466856}
+  m_Layer: 7
   m_Name: Barracks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -112,7 +112,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &514867009975070104
+--- !u!114 &5795577232150466856
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,10 +121,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 5792331774927221572}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d7a6beb090c9014e9d64bb41564edc7, type: 3}
+  m_Script: {fileID: 11500000, guid: ef811ee314e5fa4489848f2a3101dd96, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Building
-  _buildingName: Barracks
-  _maxHealth: 300
-  _constructionTime: 8
+  m_EditorClassIdentifier: Assembly-CSharp::Barracks
+  _buildingName: Building
+  _maxHealth: 200
+  _constructionTime: 5
   _constructionEffect: {fileID: 0}
+  _warriorPrefab: {fileID: 2476698572350630159, guid: 06c753ef820336c49aebd7d5f75f6393, type: 3}
+  _spawnPoint: {fileID: 0}
+  _trainingCost: 50
+  _trainingTime: 3
+  _maxQueueSize: 5
