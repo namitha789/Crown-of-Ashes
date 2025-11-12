@@ -12,6 +12,11 @@ public class Building : MonoBehaviour
     private float _constructionProgress;
     private bool _isConstructing = false;
 
+    // ADD THESE PUBLIC PROPERTIES
+    public int CurrentHealth => _currentHealth;
+    public int MaxHealth => _maxHealth;
+    public string BuildingName => _buildingName;
+
     public bool IsConstructing => _isConstructing;
     public bool IsConstructed => !_isConstructing;
 
@@ -50,7 +55,6 @@ public class Building : MonoBehaviour
         // Prevent restarting construction if already constructing or completed
         if (_isConstructing)
         {
-            Debug.LogWarning($"[Building] {_buildingName} is already constructing! Ignoring duplicate call.");
             return;
         }
         
@@ -59,8 +63,6 @@ public class Building : MonoBehaviour
 
         if (_constructionEffect != null)
             _constructionEffect.SetActive(true);
-        
-        Debug.Log($"[Building] {_buildingName} construction started. Time: {_constructionTime}s");
     }
 
     protected virtual void CompleteConstruction()
@@ -68,7 +70,6 @@ public class Building : MonoBehaviour
         // Prevent completing twice
         if (!_isConstructing)
         {
-            Debug.LogWarning($"[Building] {_buildingName} CompleteConstruction called but not constructing!");
             return;
         }
         
@@ -76,8 +77,6 @@ public class Building : MonoBehaviour
 
         if (_constructionEffect != null)
             _constructionEffect.SetActive(false);
-
-        Debug.Log($"[Building] {_buildingName} construction complete! IsConstructing: {_isConstructing}, IsConstructed: {IsConstructed}");
 
         // Notify any systems listening
         EventManager.TriggerEvent("BuildingCompleted", this);
