@@ -17,7 +17,7 @@ public class Barracks : Building
 
     private readonly Queue<UnitOrder> _productionQueue = new Queue<UnitOrder>();
     private bool _isProducing = false;
-    private bool _isProducingUnit = false; // Track if currently producing
+    private bool _isProducingUnit = false;
     private float _currentProductionTime = 0f;
     private Camera _mainCamera;
 
@@ -40,19 +40,10 @@ public class Barracks : Building
         }
     }
 
-    protected override void Update()
-    {
-        // CRITICAL: Call base.Update() so construction progresses!
-        
-        base.Update();
-        
-        // Remove the click handling - let SelectionManager handle it
-        // We no longer need this code in Update()
-    }
+    // REMOVED: No longer override Update() since Building doesn't have it anymore
 
     private void OpenUI()
     {
-        // Find the BuildingInfoUI (not BarracksUI)
         BuildingInfoUI panel = FindObjectOfType<BuildingInfoUI>(true);
         
         if (panel != null)
@@ -61,7 +52,6 @@ public class Barracks : Building
         }
     }
 
-    // Called by UI button
     public void TrainWarrior()
     {
         if (_warriorPrefab == null)
@@ -102,6 +92,7 @@ public class Barracks : Building
         }
     }
 
+    // This gets called by Building.cs via SendMessage
     private void OnConstructionComplete()
     {
         if (_productionQueue.Count > 0 && !_isProducing)
@@ -147,7 +138,6 @@ public class Barracks : Building
         }
 
         Vector3 spawnPos = _spawnPoint.position;
-        // Increased search radius from 1.5f to 5f for better NavMesh detection
         bool onNavMesh = NavMesh.SamplePosition(_spawnPoint.position, out NavMeshHit hit, 5f, NavMesh.AllAreas);
         
         if (onNavMesh)
@@ -162,7 +152,6 @@ public class Barracks : Building
             return;
         }
 
-        // Set to PlayerUnits layer (matching your prefab setup)
         int playerLayer = LayerMask.NameToLayer("PlayerUnits");
         if (playerLayer >= 0)
         {
@@ -170,7 +159,6 @@ public class Barracks : Building
         }
         else
         {
-            // Fallback to Selectable if PlayerUnits doesn't exist
             int selectableLayer = LayerMask.NameToLayer("Selectable");
             if (selectableLayer >= 0)
             {
@@ -184,17 +172,14 @@ public class Barracks : Building
             var agent = unit.GetComponent<NavMeshAgent>();
             if (agent != null)
             {
-                // Give the agent a frame to settle on the NavMesh
                 if (!agent.isOnNavMesh)
                 {
-                    // Try to warp to nearest NavMesh position
                     if (onNavMesh)
                     {
                         agent.Warp(spawnPos);
                     }
                 }
                 
-                // Move to rally point after agent is on NavMesh
                 Vector3 rallyPoint = _spawnPoint.position + _spawnPoint.forward * 5f;
                 
                 if (agent.isOnNavMesh)
@@ -212,7 +197,6 @@ public class Barracks : Building
         public float ProductionTime;
     }
 
-    // Helper method to set layer recursively
     private void SetLayerRecursively(GameObject obj, int layer)
     {
         obj.layer = layer;
