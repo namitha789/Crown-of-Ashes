@@ -1,0 +1,1287 @@
+Searched codebase for "yes", 28 results
+
+# Sprint 3 Detailed Implementation - Continued
+
+---
+
+# *ABHINAV (Systems Engineer) - Unit Production & Building Functions*
+
+## Week 2: Building Functionality (Nov 10-17)
+
+### *Task 3: Resource Collector Passive Income (Days 5-6)*
+
+#### Step 3.1: Create ResourceCollector.cs Script
+csharp
+using UnityEngine;
+
+public class ResourceCollector : Building
+{
+    [Header("Income Settings")]
+    [SerializeField] private int _goldIncomeAmount = 5;
+    [SerializeField] private int _materialsIncomeAmount = 3;
+    [SerializeField] private float _incomeInterval = 5f; // seconds
+    
+    private float _timeSinceLastIncome = 0f;
+    private bool _isProducing = false;
+    
+    protected override void Start()
+    {
+        base.Start();
+        
+        // Start income generation after construction completes
+        if (IsConstructed)
+        {
+            StartIncome();
+        }
+    }
+    
+    private void Update()
+    {
+        if (!_isProducing || !IsConstructed) return;
+        
+        _timeSinceLastIncome += Time.deltaTime;
+        
+        if (_timeSinceLastIncome >= _incomeInterval)
+        {
+            GenerateIncome();
+            _timeSinceLastIncome = 0f;
+        }
+    }
+    
+    private void StartIncome()
+    {
+        _isProducing = true;
+        _timeSinceLastIncome = 0f;
+        Debug.Log($"{gameObject.name} started generating resources");
+    }
+    
+    private void GenerateIncome()
+    {
+        ResourceManager.Instance.AddGold(_goldIncomeAmount);
+        ResourceManager.Instance.AddMaterials(_materialsIncomeAmount);
+        
+        Debug.Log($"Resource Collector generated: +{_goldIncomeAmount} Gold, +{_materialsIncomeAmount} Materials");
+        
+        // Trigger event for UI feedback
+        EventManager.TriggerEvent("ResourceGenerated", this);
+    }
+    
+    // Called when construction completes
+    public void OnConstructionComplete()
+    {
+        StartIncome();
+    }
+}
+
+
+#### Step 3.2: Update Building.cs to Support Construction Completion
+csharp
+// Add to existing Building.cs:
+
+protected bool IsConstructed { get; private set; } = false;
+
+protected virtual void Start()
+{
+    _currentHealth = _maxHealth;
+    
+    if (_constructionTime > 0)
+    {
+        StartConstruction();
+    }
+    else
+    {
+        CompleteConstruction();
+    }
+}
+
+private void StartConstruction()
+{
+    IsConstructed = false;
+    StartCoroutine(ConstructionTimer());
+}
+
+private IEnumerator ConstructionTimer()
+{
+    yield return new WaitForSeconds(_constructionTime);
+    CompleteConstruction();
+}
+
+private void CompleteConstruction()
+{
+    IsConstructed = true;
+    Debug.Log($"{gameObject.name} construction complete!");
+    
+    // Notify child classes
+    SendMessage("OnConstructionComplete", SendMessageOptions.DontRequireReceiver);
+}
+
+
+#### *Manual Test 21:* Resource Collector Income
+
+Steps:
+1. Open BuildingPlacer Inspector
+2. Verify Resource Collector Prefab is assigned
+3. Press Play
+4. Note starting resources:
+   - Gold: 200
+   - Materials: 100
+5. Click "Resource Collector" button
+6. Place building on ground (costs 75G, 25M)
+7. ✅ Resources now: Gold 125, Materials 75
+8. Wait for construction (depends on Construction Time in prefab)
+9. ✅ Construction completes after timer
+10. Wait 5 seconds
+11. ✅ Gold increases to 130 (+5)
+12. ✅ Materials increase to 78 (+3)
+13. Wait another 5 seconds
+14. ✅ Gold increases to 135 (+5)
+15. ✅ Materials increase to 81 (+3)
+16. Place 2 more collectors (need more gold first)
+17. Wait 5 seconds
+18. ✅ Resources increase by 15 Gold and 9 Materials (3 collectors × 5G and 3M)
+
+Expected Result: PASS if income generates every 5 seconds
+
+
+---
+
+### *Task 4: Tower Auto-Attack System (Days 7-8)*
+
+#### Step 4.1: Create Tower.cs Script
+csharp
+using UnityEngine;
+
+public class Tower : Building
+{
+    [Header("Combat Settings")]
+    [SerializeField] private float _attackRange = 10f;
+    [SerializeField] private int _attackDamage = 20;
+    [SerializeField] private float _attackCooldown = 2f; // seconds between attacks
+    [SerializeField] private LayerMask _enemyLayer;
+    
+    [Header("Visuals")]
+    [SerializeField] private Transform _projectileSpawnPoint;
+    [SerializeField] private GameObject _projectilePrefab;
+    
+    private float _lastAttackTime = 0f;
+    private Unit _currentTarget;
+    
+    protected override void Start()
+    {
+        base.Start();
+        
+        // Create projectile spawn point if not assigned
+        if (_projectileSpawnPoint == null)
+        {
+            GameObject spawnObj = new GameObject("ProjectileSpawn");
+            spawnObj.transform.SetParent(transform);
+            spawnObj.transform.localPosition = new Vector3(0, 2, 0); // 2 units up
+            _projectileSpawnPoint = spawnObj.transform;
+        }
+    }
+    
+    private void Update()
+    {
+        if (!IsConstructed) return;
+        
+        // Find and attack enemies
+        if (Time.time >= _lastAttackTime + _attackCooldown)
+        {
+            _currentTarget = FindNearestEnemy();
+            
+            if (_currentTarget != null)
+            {
+                AttackTarget(_currentTarget);
+                _lastAttackTime = Time.time;
+            }
+        }
+    }
+    
+    private Unit FindNearestEnemy()
+    {
+        Collider[] enemies = Physics.OverlapSphere(transform.position, _attackRange, _enemyLayer);
+        
+        Unit nearestEnemy = null;
+        float nearestDistance = Mathf.Infinity;
+        
+        foreach (Collider enemyCollider in enemies)
+        {
+            Unit enemy = enemyCollider.GetComponent<Unit>();
+            if (enemy != null && !enemy.IsDead)
+            {
+                float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestEnemy = enemy;
+                }
+            }
+        }
+        
+        return nearestEnemy;
+    }
+    
+    private void AttackTarget(Unit target)
+    {
+        if (target == null || target.IsDead) return;
+        
+        // Deal damage directly
+        target.TakeDamage(_attackDamage);
+        
+        Debug.Log($"{gameObject.name} attacked {target.gameObject.name} for {_attackDamage} damage");
+        
+        // Spawn projectile visual (if prefab assigned)
+        if (_projectilePrefab != null && _projectileSpawnPoint != null)
+        {
+            SpawnProjectile(target.transform.position);
+        }
+        
+        // Trigger event for VFX
+        EventManager.TriggerEvent("TowerAttacked", new CombatData
+        {
+            Attacker = null,
+            Target = target,
+            Damage = _attackDamage,
+            HitPosition = target.transform.position
+        });
+    }
+    
+    private void SpawnProjectile(Vector3 targetPosition)
+    {
+        GameObject projectile = Instantiate(_projectilePrefab, _projectileSpawnPoint.position, Quaternion.identity);
+        
+        // Simple projectile movement (can be enhanced later)
+        Vector3 direction = (targetPosition - _projectileSpawnPoint.position).normalized;
+        projectile.transform.LookAt(targetPosition);
+        
+        // Destroy after 1 second
+        Destroy(projectile, 1f);
+    }
+    
+    // Visualize attack range in editor
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _attackRange);
+    }
+}
+
+
+#### Step 4.2: Create Simple Projectile Script (Optional Visual)
+csharp
+using UnityEngine;
+
+public class Projectile : MonoBehaviour
+{
+    [SerializeField] private float _speed = 10f;
+    
+    private Vector3 _targetPosition;
+    
+    private void Start()
+    {
+        // Auto-destroy after 2 seconds as failsafe
+        Destroy(gameObject, 2f);
+    }
+    
+    private void Update()
+    {
+        // Move toward target
+        transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _speed * Time.deltaTime);
+        
+        // Destroy when reached target
+        if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    public void SetTarget(Vector3 target)
+    {
+        _targetPosition = target;
+    }
+}
+
+
+#### *Manual Test 22:* Tower Auto-Attack
+
+Steps (requires Sumedh's combat system):
+1. Create Tower prefab if not exists:
+   - Use tower.fbx model
+   - Add Tower.cs component
+   - Set Attack Range: 10
+   - Set Attack Damage: 20
+   - Set Attack Cooldown: 2
+   - Set Enemy Layer: "Enemy"
+2. Place tower at (0, 0, 0)
+3. Create enemy warrior manually:
+   - Place at (5, 0, 0) - within 10 unit range
+   - Set Layer to "Enemy"
+   - Add Unit.cs with 100 HP
+4. Press Play
+5. ✅ Tower detects enemy (check with Gizmo - red circle in Scene view)
+6. Wait 2 seconds
+7. ✅ Console: "Tower attacked EnemyWarrior for 20 damage"
+8. ✅ Enemy health: 100 → 80
+9. Wait 2 more seconds
+10. ✅ Another attack: 80 → 60
+11. Continue until enemy dies
+12. ✅ After 5 attacks (10 seconds), enemy dies
+13. ✅ Tower stops attacking (no targets)
+14. Place another enemy at (15, 0, 0) - outside range
+15. ✅ Tower doesn't attack (out of 10 unit range)
+16. Move enemy to (7, 0, 0)
+17. ✅ Tower starts attacking again
+
+Expected Result: PASS if tower auto-attacks enemies within range every 2 seconds
+
+
+---
+
+### *Task 5: Building Upgrade Framework (Days 9-10)*
+
+#### Step 5.1: Add Upgrade System to Building.cs
+csharp
+// Add to existing Building class:
+
+[Header("Upgrade System")]
+[SerializeField] private int _currentLevel = 1;
+[SerializeField] private int _maxLevel = 3;
+[SerializeField] private int _upgradeGoldCost = 100;
+[SerializeField] private int _upgradeMaterialsCost = 50;
+
+public int CurrentLevel => _currentLevel;
+public int MaxLevel => _maxLevel;
+public bool CanUpgrade => _currentLevel < _maxLevel;
+
+public bool TryUpgrade()
+{
+    if (!CanUpgrade)
+    {
+        Debug.LogWarning($"{BuildingName} is already max level!");
+        return false;
+    }
+    
+    if (!ResourceManager.Instance.SpendResources(_upgradeGoldCost, _upgradeMaterialsCost, 0))
+    {
+        Debug.LogWarning($"Not enough resources to upgrade {BuildingName}!");
+        return false;
+    }
+    
+    _currentLevel++;
+    OnUpgraded();
+    
+    Debug.Log($"{BuildingName} upgraded to level {_currentLevel}");
+    return true;
+}
+
+protected virtual void OnUpgraded()
+{
+    // Increase max health by 20% per level
+    _maxHealth = Mathf.RoundToInt(_maxHealth * 1.2f);
+    _currentHealth = _maxHealth;
+    
+    // Child classes override this for specific upgrades
+}
+
+
+#### Step 5.2: Override OnUpgraded in Tower.cs
+csharp
+// Add to Tower class:
+
+protected override void OnUpgraded()
+{
+    base.OnUpgraded(); // Call parent (increases health)
+    
+    // Increase damage by 10 per level
+    _attackDamage += 10;
+    
+    // Increase range slightly
+    _attackRange += 1f;
+    
+    Debug.Log($"Tower upgraded! New damage: {_attackDamage}, New range: {_attackRange}");
+}
+
+
+#### Step 5.3: Override OnUpgraded in ResourceCollector.cs
+csharp
+// Add to ResourceCollector class:
+
+protected override void OnUpgraded()
+{
+    base.OnUpgraded();
+    
+    // Increase income by 2 per level
+    _goldIncomeAmount += 2;
+    _materialsIncomeAmount += 1;
+    
+    Debug.Log($"Resource Collector upgraded! New income: {_goldIncomeAmount}G, {_materialsIncomeAmount}M per {_incomeInterval}s");
+}
+
+
+#### Step 5.4: Add Upgrade Button to BuildingInfoUI (Namitha's work, but Abhinav provides backend)
+csharp
+// Namitha will create UI, Abhinav provides this method:
+
+public void OnUpgradeButtonClicked()
+{
+    if (_selectedBuilding != null)
+    {
+        bool upgraded = _selectedBuilding.TryUpgrade();
+        
+        if (upgraded)
+        {
+            UpdateBuildingInfo(); // Refresh UI
+        }
+    }
+}
+
+
+#### *Manual Test 23:* Building Upgrades
+
+Steps (requires Namitha's UI):
+1. Place tower in scene
+2. Set in Inspector:
+   - Current Level: 1
+   - Max Level: 3
+   - Upgrade Gold Cost: 100
+   - Upgrade Materials Cost: 50
+3. Give player resources (via ResourceManager):
+   - Gold: 500
+   - Materials: 300
+4. Press Play
+5. Click on tower
+6. ✅ Building info shows "Level 1 Tower"
+7. ✅ Shows upgrade button "Upgrade (100G, 50M)"
+8. Click Upgrade
+9. ✅ Resources deducted: Gold 500→400, Materials 300→250
+10. ✅ Tower level: 1→2
+11. ✅ Tower damage: 20→30
+12. ✅ Tower range: 10→11
+13. Click Upgrade again
+14. ✅ Level 2→3
+15. ✅ Damage: 30→40
+16. ✅ Range: 11→12
+17. Click Upgrade again
+18. ✅ Button disabled or shows "Max Level"
+19. ✅ Console: "Tower is already max level!"
+
+Expected Result: PASS if building levels up and stats increase correctly
+
+
+---
+
+# *KEYUR (Art & Design Integration) - VFX, Sound & Polish*
+
+## Week 1: Combat Visual Effects (Nov 3-9)
+
+### *Task 1: Integrate CombatVFX with Events (Days 1-2)*
+
+#### Step 1.1: Update CombatVFX.cs to Listen to Events
+csharp
+using UnityEngine;
+
+public class CombatVFX : MonoBehaviour
+{
+    [Header("Particle Prefabs")]
+    [SerializeField] private GameObject _bloodSplatterPrefab;
+    [SerializeField] private GameObject _sparksPrefab;
+    [SerializeField] private GameObject _explosionPrefab;
+    [SerializeField] private GameObject _swordSlashPrefab;
+    
+    private void OnEnable()
+    {
+        EventManager.StartListening("UnitDamaged", OnUnitDamaged);
+        EventManager.StartListening("UnitDied", OnUnitDied);
+        EventManager.StartListening("UnitAttacked", OnUnitAttacked);
+        EventManager.StartListening("TowerAttacked", OnTowerAttacked);
+    }
+    
+    private void OnDisable()
+    {
+        EventManager.StopListening("UnitDamaged", OnUnitDamaged);
+        EventManager.StopListening("UnitDied", OnUnitDied);
+        EventManager.StopListening("UnitAttacked", OnUnitAttacked);
+        EventManager.StopListening("TowerAttacked", OnTowerAttacked);
+    }
+    
+    private void OnUnitDamaged(object data)
+    {
+        if (data is CombatData combatData)
+        {
+            SpawnBloodSplatter(combatData.HitPosition);
+        }
+    }
+    
+    private void OnUnitDied(object data)
+    {
+        if (data is Vector3 position)
+        {
+            SpawnExplosion(position);
+        }
+    }
+    
+    private void OnUnitAttacked(object data)
+    {
+        if (data is CombatData combatData)
+        {
+            SpawnSwordSlash(combatData.Attacker.transform.position, combatData.Target.transform.position);
+        }
+    }
+    
+    private void OnTowerAttacked(object data)
+    {
+        if (data is CombatData combatData)
+        {
+            SpawnSparks(combatData.HitPosition);
+        }
+    }
+    
+    private void SpawnBloodSplatter(Vector3 position)
+    {
+        if (_bloodSplatterPrefab == null) return;
+        
+        GameObject vfx = Instantiate(_bloodSplatterPrefab, position, Quaternion.identity);
+        Destroy(vfx, 2f); // Auto-destroy after 2 seconds
+    }
+    
+    private void SpawnExplosion(Vector3 position)
+    {
+        if (_explosionPrefab == null) return;
+        
+        GameObject vfx = Instantiate(_explosionPrefab, position, Quaternion.identity);
+        Destroy(vfx, 3f);
+    }
+    
+    private void SpawnSwordSlash(Vector3 attackerPos, Vector3 targetPos)
+    {
+        if (_swordSlashPrefab == null) return;
+        
+        Vector3 spawnPos = (attackerPos + targetPos) / 2f; // Midpoint
+        GameObject vfx = Instantiate(_swordSlashPrefab, spawnPos, Quaternion.identity);
+        
+        // Face the target
+        vfx.transform.LookAt(targetPos);
+        
+        Destroy(vfx, 0.5f);
+    }
+    
+    private void SpawnSparks(Vector3 position)
+    {
+        if (_sparksPrefab == null) return;
+        
+        GameObject vfx = Instantiate(_sparksPrefab, position, Quaternion.identity);
+        Destroy(vfx, 1f);
+    }
+}
+
+
+#### Step 1.2: Create Particle Effects in Unity
+
+*Create Blood Splatter:*
+
+1. GameObject → Effects → Particle System
+2. Rename to "BloodSplatter"
+3. Configure Particle System:
+   - Duration: 0.5
+   - Looping: Off
+   - Start Lifetime: 0.5-1
+   - Start Speed: 2-5
+   - Start Size: 0.1-0.3
+   - Start Color: Red (139, 0, 0)
+   - Emission Rate: 20
+   - Shape: Sphere, Radius: 0.2
+4. Add Renderer:
+   - Material: Default-Particle (or create red material)
+5. Save as prefab: Assets/Prefabs/VFX/BloodSplatter.prefab
+
+
+*Create Explosion:*
+
+1. GameObject → Effects → Particle System
+2. Rename to "DeathExplosion"
+3. Configure:
+   - Duration: 1
+   - Looping: Off
+   - Start Lifetime: 0.5-1.5
+   - Start Speed: 3-8
+   - Start Size: 0.2-0.5
+   - Start Color: Orange to Yellow gradient
+   - Emission: Burst of 30 particles at time 0
+   - Shape: Sphere, Radius: 0.5
+4. Add second particle system as child for smoke
+5. Save as prefab
+
+
+*Create Sword Slash:*
+
+1. GameObject → 3D Object → Quad
+2. Rename to "SwordSlash"
+3. Scale: (0.5, 1, 1)
+4. Create material "SlashMaterial":
+   - Shader: Particles/Standard Unlit
+   - Rendering Mode: Fade
+   - Import slash texture or use white
+   - Color: White with alpha
+5. Apply material to quad
+6. Add script to fade out over time
+7. Save as prefab
+
+
+#### *Manual Test 24:* Attack VFX
+
+Steps (requires Sumedh's combat):
+1. Add CombatVFX GameObject to scene
+2. Attach CombatVFX.cs script
+3. Assign all prefabs to script:
+   - Blood Splatter Prefab
+   - Explosion Prefab
+   - Sword Slash Prefab
+   - Sparks Prefab
+4. Press Play
+5. Make warrior attack enemy
+6. ✅ Sword slash appears between attacker and target
+7. ✅ Slash oriented toward enemy
+8. ✅ Slash disappears after 0.5s
+9. ✅ Blood splatter appears at enemy position
+10. Enemy dies
+11. ✅ Explosion effect plays at death position
+12. ✅ Explosion lasts ~1 second then disappears
+
+Expected Result: PASS if VFX spawn correctly and clean up
+
+
+---
+
+### *Task 2: Create Death Animations (Days 3-4)*
+
+#### Step 2.1: Create UnitDeathEffect.cs
+csharp
+using UnityEngine;
+using System.Collections;
+
+public class UnitDeathEffect : MonoBehaviour
+{
+    [SerializeField] private GameObject _deathVFXPrefab;
+    [SerializeField] private GameObject _scorchMarkPrefab;
+    [SerializeField] private float _fadeOutDuration = 0.5f;
+    
+    private Renderer[] _renderers;
+    
+    private void Start()
+    {
+        _renderers = GetComponentsInChildren<Renderer>();
+    }
+    
+    public void TriggerDeath()
+    {
+        StartCoroutine(DeathSequence());
+    }
+    
+    private IEnumerator DeathSequence()
+    {
+        // Spawn death VFX
+        if (_deathVFXPrefab != null)
+        {
+            Instantiate(_deathVFXPrefab, transform.position, Quaternion.identity);
+        }
+        
+        // Leave scorch mark on ground
+        if (_scorchMarkPrefab != null)
+        {
+            Vector3 groundPos = transform.position;
+            groundPos.y = 0.01f; // Slightly above ground to prevent z-fighting
+            Instantiate(_scorchMarkPrefab, groundPos, Quaternion.Euler(90, 0, 0));
+        }
+        
+        // Fade out unit model
+        float elapsed = 0f;
+        
+        while (elapsed < _fadeOutDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = 1f - (elapsed / _fadeOutDuration);
+            
+            foreach (Renderer renderer in _renderers)
+            {
+                if (renderer != null)
+                {
+                    Color color = renderer.material.color;
+                    color.a = alpha;
+                    renderer.material.color = color;
+                }
+            }
+            
+            yield return null;
+        }
+        
+        // Destroy unit
+        Destroy(gameObject);
+    }
+}
+
+
+#### Step 2.2: Update Unit.cs to Use Death Effect
+csharp
+// Update Die() method:
+
+private void Die()
+{
+    if (_isDead) return;
+    
+    _isDead = true;
+    
+    // Trigger death event
+    EventManager.TriggerEvent("UnitDied", transform.position);
+    
+    Debug.Log($"{gameObject.name} has died!");
+    
+    // Disable components
+    GetComponent<NavMeshAgent>().enabled = false;
+    GetComponent<Collider>().enabled = false;
+    
+    // Trigger death effect if available
+    UnitDeathEffect deathEffect = GetComponent<UnitDeathEffect>();
+    if (deathEffect != null)
+    {
+        deathEffect.TriggerDeath(); // Will destroy after fade
+    }
+    else
+    {
+        Destroy(gameObject, 1f); // Fallback
+    }
+}
+
+
+#### Step 2.3: Create Scorch Mark Prefab
+
+1. GameObject → 3D Object → Plane
+2. Rename to "ScorchMark"
+3. Scale: (0.5, 0.5, 0.5)
+4. Remove MeshCollider
+5. Create material "ScorchMarkMaterial":
+   - Shader: Standard
+   - Albedo: Black texture or circle
+   - Metallic: 0
+   - Smoothness: 0.2
+   - Rendering Mode: Cutout
+6. Apply material
+7. Add script to fade out over 10 seconds
+8. Save as prefab
+
+
+#### *Manual Test 26:* Death VFX
+
+Steps:
+1. Add UnitDeathEffect to Warrior_Test prefab
+2. Assign Death VFX Prefab (explosion)
+3. Assign Scorch Mark Prefab
+4. Press Play
+5. Make unit take fatal damage
+6. ✅ Explosion particle plays at position
+7. ✅ Unit model starts fading out
+8. ✅ Unit becomes transparent over 0.5s
+9. ✅ Scorch mark appears on ground
+10. ✅ Unit completely disappears after fade
+11. Wait 10 seconds
+12. ✅ Scorch mark fades and disappears
+
+Expected Result: PASS if death looks smooth and clean
+
+
+---
+
+## Week 2: Sound Effects & Final Polish (Nov 10-17)
+
+### *Task 3: Implement Sound System (Days 5-7)*
+
+#### Step 3.1: Create AudioManager.cs
+csharp
+using UnityEngine;
+using System.Collections.Generic;
+
+public class AudioManager : MonoBehaviour
+{
+    [System.Serializable]
+    public class Sound
+    {
+        public string name;
+        public AudioClip clip;
+        [Range(0f, 1f)] public float volume = 1f;
+        [Range(0.1f, 3f)] public float pitch = 1f;
+        public bool loop = false;
+    }
+    
+    [Header("Sound Effects")]
+    [SerializeField] private Sound[] _soundEffects;
+    
+    [Header("Music")]
+    [SerializeField] private AudioClip _gameplayMusic;
+    [SerializeField] private AudioClip _victoryMusic;
+    [SerializeField] private AudioClip _defeatMusic;
+    [Range(0f, 1f)] [SerializeField] private float _musicVolume = 0.5f;
+    
+    private Dictionary<string, AudioSource> _soundSources = new Dictionary<string, AudioSource>();
+    private AudioSource _musicSource;
+    
+    private static AudioManager _instance;
+    public static AudioManager Instance => _instance;
+    
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        _instance = this;
+        DontDestroyOnLoad(gameObject);
+        
+        InitializeSounds();
+        InitializeMusic();
+    }
+    
+    private void OnEnable()
+    {
+        EventManager.StartListening("UnitAttacked", OnUnitAttacked);
+        EventManager.StartListening("UnitDamaged", OnUnitDamaged);
+        EventManager.StartListening("UnitDied", OnUnitDied);
+        EventManager.StartListening("GameWon", OnGameWon);
+        EventManager.StartListening("GameLost", OnGameLost);
+    }
+    
+    private void OnDisable()
+    {
+        EventManager.StopListening("UnitAttacked", OnUnitAttacked);
+        EventManager.StopListening("UnitDamaged", OnUnitDamaged);
+        EventManager.StopListening("UnitDied", OnUnitDied);
+        EventManager.StopListening("GameWon", OnGameWon);
+        EventManager.StopListening("GameLost", OnGameLost);
+    }
+    
+    private void InitializeSounds()
+    {
+        foreach (Sound sound in _soundEffects)
+        {
+            GameObject soundObj = new GameObject($"Sound_{sound.name}");
+            soundObj.transform.SetParent(transform);
+            
+            AudioSource source = soundObj.AddComponent<AudioSource>();
+            source.clip = sound.clip;
+            source.volume = sound.volume;
+            source.pitch = sound.pitch;
+            source.loop = sound.loop;
+            source.playOnAwake = false;
+            
+            _soundSources[sound.name] = source;
+        }
+    }
+    
+    private void InitializeMusic()
+    {
+        GameObject musicObj = new GameObject("MusicSource");
+        musicObj.transform.SetParent(transform);
+        
+        _musicSource = musicObj.AddComponent<AudioSource>();
+        _musicSource.loop = true;
+        _musicSource.volume = _musicVolume;
+        _musicSource.playOnAwake = false;
+        
+        // Start gameplay music
+        PlayMusic(_gameplayMusic);
+    }
+    
+    public void PlaySound(string soundName)
+    {
+        if (_soundSources.TryGetValue(soundName, out AudioSource source))
+        {
+            source.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"Sound '{soundName}' not found!");
+        }
+    }
+    
+    public void PlayMusic(AudioClip music)
+    {
+        if (_musicSource != null && music != null)
+        {
+            _musicSource.clip = music;
+            _musicSource.Play();
+        }
+    }
+    
+    private void OnUnitAttacked(object data) => PlaySound("SwordSwing");
+    private void OnUnitDamaged(object data) => PlaySound("HitImpact");
+    private void OnUnitDied(object data) => PlaySound("DeathCry");
+    private void OnGameWon(object data) => PlayMusic(_victoryMusic);
+    private void OnGameLost(object data) => PlayMusic(_defeatMusic);
+}
+
+
+#### Step 3.2: Find/Import Sound Effects
+
+*Free Sound Sources:*
+
+1. freesound.org (CC0 license):
+   - Search "sword swing"
+   - Search "metal impact"
+   - Search "death cry"
+   - Search "footsteps"
+   - Search "construction"
+   
+2. Unity Asset Store:
+   - "Free Sound Effects Pack" by Olivier Girardot
+   - "8-Bit Sound Effects Pack"
+   
+3. zapsplat.com (free tier):
+   - Sword sounds
+   - Impact sounds
+   - Building sounds
+
+
+*Import to Unity:*
+
+1. Create folder: Assets/Audio/SFX/
+2. Drag .wav or .mp3 files into folder
+3. Select each audio file
+4. Inspector settings:
+   - Force To Mono: Yes (for 3D sounds)
+   - Load In Background: Yes
+   - Preload Audio Data: Yes (for frequently used sounds)
+   - Compression Format: Vorbis (smaller file size)
+
+
+#### Step 3.3: Setup AudioManager in Scene
+
+1. Create empty GameObject: "AudioManager"
+2. Add AudioManager.cs script
+3. Configure Sound Effects array:
+   - Size: 7
+   - Element 0: Name "SwordSwing", Clip: sword_swing.wav, Volume: 0.6
+   - Element 1: Name "HitImpact", Clip: metal_hit.wav, Volume: 0.7
+   - Element 2: Name "DeathCry", Clip: death_cry.wav, Volume: 0.8
+   - Element 3: Name "Footsteps", Clip: footsteps.wav, Volume: 0.3
+   - Element 4: Name "BuildingPlace", Clip: construction.wav, Volume: 0.5
+   - Element 5: Name "ResourceGather", Clip: coin.wav, Volume: 0.4
+   - Element 6: Name "WarCry", Clip: battle_cry.wav, Volume: 1.0
+4. Assign music clips (find free music or use placeholder)
+
+
+#### *Manual Test 27:* Sound Effects
+
+Steps:
+1. Ensure AudioManager in scene with all sounds assigned
+2. Press Play
+3. Click warrior
+4. ✅ "Click" sound plays (if implemented)
+5. Right-click to move warrior
+6. ✅ Footstep sounds loop while moving
+7. Stop moving
+8. ✅ Footsteps stop
+9. Make warrior attack enemy
+10. ✅ "SwordSwing" sound plays
+11. ✅ "HitImpact" sound plays when damage dealt
+12. Enemy dies
+13. ✅ "DeathCry" plays
+14. Place building
+15. ✅ "BuildingPlace" sound plays
+16. Check that sounds don't overlap weirdly
+17. ✅ No audio crackling or cutting off
+
+Expected Result: PASS if all sounds play at correct times without glitches
+
+
+---
+
+### *Task 4: Background Music (Day 8)*
+
+#### Step 4.1: Find/Import Music
+
+*Free Music Sources:*
+
+1. incompetech.com (Kevin MacLeod):
+   - Genre: Cinematic
+   - Search "epic" for gameplay
+   - Search "victory" for win screen
+   - Must credit in game (free to use)
+   
+2. freemusicarchive.org:
+   - Filter by CC0 (public domain)
+   - Genre: Soundtrack/Game
+   
+3. Unity Asset Store:
+   - "Free Music Pack" by Cybertronic Studio
+
+
+*Recommended Tracks:*
+- *Gameplay:* "Clash Defiant" by Kevin MacLeod
+- *Victory:* "Fanfare for Space" by Kevin MacLeod  
+- *Defeat:* "Frozen Star" by Kevin MacLeod
+
+#### *Manual Test 28:* Background Music
+
+Steps:
+1. Import 3 music tracks to Assets/Audio/Music/
+2. Assign to AudioManager:
+   - Gameplay Music: gameplay_theme.mp3
+   - Victory Music: victory_theme.mp3
+   - Defeat Music: defeat_theme.mp3
+3. Set Music Volume: 0.5 (50%)
+4. Press Play
+5. ✅ Gameplay music starts automatically
+6. ✅ Music loops continuously
+7. ✅ Volume at comfortable level (not too loud)
+8. Pause game (ESC or Time.timeScale = 0)
+9. Optional: Lower volume to 30% when paused
+10. Resume game
+11. ✅ Music continues normally
+12. Win game (destroy all outposts)
+13. ✅ Gameplay music fades out
+14. ✅ Victory music starts
+15. ✅ Victory music doesn't loop (plays once)
+
+Expected Result: PASS if music transitions smoothly
+
+
+---
+
+### *Task 5: Final Polish (Days 9-10)*
+
+#### Step 5.1: Improve Selection Indicators
+csharp
+using UnityEngine;
+
+public class AnimatedSelectionRing : MonoBehaviour
+{
+    [SerializeField] private float _pulseSpeed = 2f;
+    [SerializeField] private float _minScale = 0.9f;
+    [SerializeField] private float _maxScale = 1.1f;
+    [SerializeField] private float _rotationSpeed = 30f;
+    
+    private Vector3 _baseScale;
+    
+    private void Start()
+    {
+        _baseScale = transform.localScale;
+    }
+    
+    private void Update()
+    {
+        // Pulse scale
+        float scale = Mathf.Lerp(_minScale, _maxScale, (Mathf.Sin(Time.time * _pulseSpeed) + 1f) / 2f);
+        transform.localScale = _baseScale * scale;
+        
+        // Rotate around Y axis
+        transform.Rotate(Vector3.up, _rotationSpeed * Time.deltaTime);
+    }
+}
+
+
+*Apply to Selection Rings:*
+
+1. Find Warrior_Test prefab
+2. Locate SelectionRing child object
+3. Add AnimatedSelectionRing script
+4. Configure:
+   - Pulse Speed: 2
+   - Min Scale: 0.9
+   - Max Scale: 1.1
+   - Rotation Speed: 30
+
+
+#### Step 5.2: Add Construction VFX
+csharp
+using UnityEngine;
+
+public class ConstructionEffect : MonoBehaviour
+{
+    [SerializeField] private GameObject _dustCloudPrefab;
+    [SerializeField] private float _spawnInterval = 0.5f;
+    
+    private float _timer = 0f;
+    private bool _isConstructing = false;
+    
+    public void StartConstruction(float duration)
+    {
+        _isConstructing = true;
+        Invoke(nameof(StopConstruction), duration);
+    }
+    
+    private void Update()
+    {
+        if (!_isConstructing) return;
+        
+        _timer += Time.deltaTime;
+        
+        if (_timer >= _spawnInterval)
+        {
+            SpawnDust();
+            _timer = 0f;
+        }
+    }
+    
+    private void SpawnDust()
+    {
+        if (_dustCloudPrefab == null) return;
+        
+        // Random position around building
+        Vector3 offset = Random.insideUnitSphere * 2f;
+        offset.y = 0;
+        Vector3 spawnPos = transform.position + offset;
+        
+        GameObject dust = Instantiate(_dustCloudPrefab, spawnPos, Quaternion.identity);
+        Destroy(dust, 2f);
+    }
+    
+    private void StopConstruction()
+    {
+        _isConstructing = false;
+    }
+}
+
+
+#### *Manual Test 29:* Performance with VFX
+
+Steps:
+1. Create stress test scene:
+   - 20 player warriors
+   - 20 enemy warriors
+   - 5 towers
+   - 3 resource collectors
+2. Press Play
+3. Start combat (all units fighting)
+4. Enable Stats overlay (Window → Analysis → Stats)
+5. ✅ Check FPS: Should be 30+ FPS
+6. ✅ Check Draw Calls: < 500
+7. ✅ All VFX play correctly:
+   - Blood splatters
+   - Death explosions
+   - Sword slashes
+   - Tower projectiles
+8. ✅ No lag spikes when multiple units die simultaneously
+9. ✅ Sound doesn't stutter or cut out
+10. Let battle run for 2 minutes
+11. ✅ Performance stays stable
+12. ✅ Memory doesn't continuously increase (no leaks)
+
+Expected Result: PASS if 30 FPS maintained with all effects
+
+
+---
+
+## *Final Integration Testing (All Team Members - Nov 17)*
+
+### *Test 30: Full Gameplay Loop*
+
+Full walkthrough documented in previous message - tests all systems together
+
+
+### *Test 31: Defeat Condition*
+
+Full walkthrough documented in previous message - tests losing scenario
+
+
+### *Test 32: Edge Cases & Bug Hunting*
+
+1. Resource Tests:
+   ✅ Try building with exactly enough resources (edge case)
+   ✅ Try building with 1 less gold than needed → Should fail gracefully
+   ✅ Resources can't go negative
+
+2. Unit Tests:
+   ✅ Delete unit while it's selected → No errors
+   ✅ Unit dies while moving → Movement stops, no errors
+   ✅ Select 100 units → Performance OK
+   ✅ Deselect all (ESC) → All rings disappear
+
+3. Building Tests:
+   ✅ Cancel placement mid-preview → Preview destroyed
+   ✅ Place building on another building → Rejected (red preview)
+   ✅ Destroy building with queued units → Queue cleared
+
+4. Combat Tests:
+   ✅ Unit attacks dead target → Switches to new target
+   ✅ Tower attacks non-existent enemy → No errors
+   ✅ Multiple units attack same target → Works correctly
+
+5. UI Tests:
+   ✅ Click UI buttons rapidly → No duplicate actions
+   ✅ Resize window → UI scales correctly
+   ✅ Pause during combat → Everything freezes
+
+6. Audio Tests:
+   ✅ Mute then unmute → Sounds resume
+   ✅ Play 50 sounds at once → No crash
+   ✅ Music transitions don't overlap
+
+7. Victory/Defeat:
+   ✅ Win with 0 units remaining → Still counts as victory
+   ✅ Lose with resources remaining → Still defeat
+   ✅ Can't interact with game after game over
+
+Expected Result: ALL PASS with no crashes or major bugs
+
+
+---
+
+## *Deliverables Summary (Nov 17 Due Date)*
+
+### *Code Files:*
+- [ ] Unit.cs (with combat)
+- [ ] SimpleEnemyAI.cs (complete)
+- [ ] SimpleOutpost.cs (complete)
+- [ ] Barracks.cs (unit production)
+- [ ] ResourceCollector.cs (passive income)
+- [ ] Tower.cs (auto-attack)
+- [ ] HealthBarController.cs (UI)
+- [ ] DamageNumberManager.cs (UI)
+- [ ] CombatVFX.cs (effects)
+- [ ] AudioManager.cs (sound)
+- [ ] GameOverUI.cs (victory/defeat)
+
+### *Assets Created:*
+- [ ] 5+ VFX prefabs (blood, explosion, slash, sparks, dust)
+- [ ] 7+ sound effects (sword, impact, death, etc.)
+- [ ] 3 music tracks (gameplay, victory, defeat)
+- [ ] Health bar prefab
+- [ ] Damage number prefab
+- [ ] Enemy warrior prefab
+- [ ] 3 outpost GameObjects in scene
+
+### *Testing Documentation:*
+- [ ] 32 manual tests completed with ✅ or ❌ results
+- [ ] Bug list with severity ratings
+- [ ] Performance metrics (FPS, memory usage)
+- [ ] Video recording of full gameplay loop (optional but recommended)
+
+---
+
+## *Team Communication Protocol*
+
+*Daily Standup (5 mins):*
+- What did you complete yesterday?
+- What are you working on today?
+- Any blockers?
+
+*Mid-Sprint Review (Nov 10):*
+- Demo current progress
+- Update task assignments if needed
+- Pair programming for stuck tasks
+
+*Final Review (Nov 17):*
+- Full gameplay demo
+- Code review
+- Bug fixing session
+- Prepare presentation materials
+
+---
+
+*Total Implementation Time Estimate:*
+- Sumedh: 45 hours
+- Vedant: 48 hours
+- Namitha: 42 hours
+- Abhinav: 50 hours
+- Keyur: 46 hours
+
+*Expected Outcome:* Fully playable RTS demo with combat, AI, building functions, VFX, and sound! 🎮🎉

@@ -2277,7 +2277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2317025945476570511, guid: 93e41ea51cfe178418fad5b3529fca44, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.63
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2317025945476570511, guid: 93e41ea51cfe178418fad5b3529fca44, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2314,10 +2314,6 @@ PrefabInstance:
     - target: {fileID: 7089945716509427882, guid: 93e41ea51cfe178418fad5b3529fca44, type: 3}
       propertyPath: m_Name
       value: CombatVFX
-      objectReference: {fileID: 0}
-    - target: {fileID: 8736018438906058857, guid: 93e41ea51cfe178418fad5b3529fca44, type: 3}
-      propertyPath: _swordSlashPrefab
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8736018438906058857, guid: 93e41ea51cfe178418fad5b3529fca44, type: 3}
       propertyPath: _attackImpactPrefab
