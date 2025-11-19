@@ -272,27 +272,32 @@ public class Unit : MonoBehaviour
     }
     
     private void Die()
+{
+    if (_isDead) return;
+    
+    _isDead = true;
+    
+    // Trigger death event
+    EventManager.TriggerEvent("UnitDied", transform.position);
+    
+    Debug.Log($"{gameObject.name} has died!");
+    
+    // Disable components
+    GetComponent<NavMeshAgent>().enabled = false;
+    GetComponent<Collider>().enabled = false;
+    
+    // Trigger death effect if available
+    UnitDeathEffect deathEffect = GetComponent<UnitDeathEffect>();
+    if (deathEffect != null)
     {
-        if (_isDead) return;
-        
-        _isDead = true;
-        _currentState = CombatState.Dead;
-        
-        // Trigger death event for VFX
-        EventManager.TriggerEvent("UnitDied", transform.position);
-        
-        Debug.Log($"{gameObject.name} has died!");
-        
-        // Disable components
-        if (_navAgent != null) _navAgent.enabled = false;
-        if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
-        
-        // Hide selection indicator
-        if (_selectionIndicator != null) _selectionIndicator.SetActive(false);
-        
-        // Destroy after delay for death animation
-        Destroy(gameObject, 1f);
+        deathEffect.TriggerDeath(); // Will destroy after fade
     }
+    else
+    {
+        Destroy(gameObject, 1f); // Fallback
+    }
+}
+
 
     private Unit FindNearestEnemy()
     {
