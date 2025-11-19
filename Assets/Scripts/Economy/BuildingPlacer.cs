@@ -65,32 +65,39 @@ public class BuildingPlacer : MonoBehaviour
     }
     
     private void StartPlacingBuilding(GameObject buildingPrefab, int goldCost, int materialsCost)
+{
+    if (_isPlacing)
     {
-        if (_isPlacing)
-        {
-            CancelPlacement();
-        }
-        
-        _buildingPrefab = buildingPrefab;
-        _currentBuildingPreview = Instantiate(buildingPrefab);
-        _buildingCostGold = goldCost;
-        _buildingCostMaterials = materialsCost;
-        _isPlacing = true;
-        
-        // Disable components during preview
-        foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
-        {
-            col.enabled = false;
-        }
-        
-        Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
-        if (buildingComponent != null)
-        {
-            buildingComponent.enabled = false;
-        }
-        
-        Debug.Log($"Placing building. Cost: {goldCost} Gold, {materialsCost} Materials");
+        CancelPlacement();
     }
+    
+    _buildingPrefab = buildingPrefab;
+    _buildingCostGold = goldCost;
+    _buildingCostMaterials = materialsCost;
+    
+    // Instantiate with INACTIVE state to prevent Start() from running
+    _currentBuildingPreview = Instantiate(buildingPrefab);
+    _currentBuildingPreview.SetActive(false);  // ← ADD THIS LINE
+    
+    _isPlacing = true;
+    
+    // Disable components during preview
+    foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
+    {
+        col.enabled = false;
+    }
+    
+    Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
+    if (buildingComponent != null)
+    {
+        buildingComponent.enabled = false;
+    }
+    
+    // Re-activate the preview (Start() won't run because component is disabled)
+    _currentBuildingPreview.SetActive(true);  // ← ADD THIS LINE
+    
+    Debug.Log($"Placing building. Cost: {goldCost} Gold, {materialsCost} Materials");
+}
     
     private void UpdateBuildingPreview()
     {
@@ -170,36 +177,39 @@ public class BuildingPlacer : MonoBehaviour
     }
     
     private void TryPlaceBuilding()
+{
+    if (IsValidPlacement())
     {
-        if (IsValidPlacement())
+        if (ResourceManager.Instance.SpendResources(_buildingCostGold, _buildingCostMaterials, 0))
         {
-            if (ResourceManager.Instance.SpendResources(_buildingCostGold, _buildingCostMaterials, 0))
+            // Re-enable colliders
+            foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
             {
-                // Re-enable components
-                foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
-                {
-                    col.enabled = true;
-                }
-                
-                Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
-                if (buildingComponent != null)
-                {
-                    buildingComponent.enabled = true;
-                }
-                
-                // Restore materials
-                Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
-                foreach (Renderer renderer in renderers)
-                {
-                    renderer.material.color = Color.white;
-                }
-                
-                Debug.Log("Building placed successfully!");
-                _currentBuildingPreview = null;
-                _isPlacing = false;
+                col.enabled = true;
             }
+            
+            // Restore materials FIRST
+            Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
+            {
+                // You need to restore the original material, not just change color
+                // For now, we'll assume you want to reset it
+                renderer.material.color = Color.white;
+            }
+            
+            // Re-enable Building component LAST (this triggers Start())
+            Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
+            if (buildingComponent != null)
+            {
+                buildingComponent.enabled = true;  // ← This triggers Start() and begins construction
+            }
+            
+            Debug.Log("Building placed successfully!");
+            _currentBuildingPreview = null;
+            _isPlacing = false;
         }
     }
+}
     
     private void CancelPlacement()
     {

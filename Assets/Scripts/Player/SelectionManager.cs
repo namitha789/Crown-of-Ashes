@@ -7,6 +7,9 @@ public class SelectionManager : MonoBehaviour
     [SerializeField] private LayerMask _selectableLayer;
     [SerializeField] private LayerMask _enemyLayer;
     
+    [Header("Building Selection")]
+    [SerializeField] private LayerMask _buildingLayer; // Add this field
+    
     private List<Unit> _selectedUnits = new List<Unit>();
     private Camera _mainCamera;
     
@@ -37,7 +40,9 @@ public class SelectionManager : MonoBehaviour
             Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             
             bool clickedOnUnit = false;
+            bool clickedOnBuilding = false;
             
+            // First check for units
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f, _selectableLayer))
             {
                 Unit unit = hit.collider.GetComponent<Unit>();
@@ -61,8 +66,29 @@ public class SelectionManager : MonoBehaviour
                 }
             }
             
-            // Only deselect if clicked empty space (not on a unit)
-            if (!clickedOnUnit && !Input.GetKey(KeyCode.LeftShift))
+            // If didn't click a unit, check for buildings
+            if (!clickedOnUnit)
+            {
+                if (Physics.Raycast(ray, out RaycastHit buildingHit, 1000f))
+                {
+                    Building building = buildingHit.collider.GetComponent<Building>();
+                    if (building != null)
+                    {
+                        clickedOnBuilding = true;
+                        Debug.Log($"Clicked on building: {building.gameObject.name}");
+                        
+                        // Show building UI
+                        BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+                        if (buildingUI != null)
+                        {
+                            buildingUI.ShowBuilding(building);
+                        }
+                    }
+                }
+            }
+            
+            // Only deselect if clicked empty space
+            if (!clickedOnUnit && !clickedOnBuilding && !Input.GetKey(KeyCode.LeftShift))
             {
                 DeselectAll();
             }
@@ -71,6 +97,13 @@ public class SelectionManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             DeselectAll();
+            
+            // Also hide building UI
+            BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+            if (buildingUI != null)
+            {
+                buildingUI.HidePanel();
+            }
         }
     }
     
