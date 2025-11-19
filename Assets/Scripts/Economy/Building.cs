@@ -13,6 +13,14 @@ public class Building : MonoBehaviour
     [SerializeField] private int _constructionCostGold = 50;
     [SerializeField] private int _constructionCostMaterials = 25;
 
+    // ========== NEW: UPGRADE SYSTEM ==========
+    [Header("Upgrade System")]
+    [SerializeField] private int _currentLevel = 1;
+    [SerializeField] private int _maxLevel = 3;
+    [SerializeField] private int _upgradeGoldCost = 100;
+    [SerializeField] private int _upgradeMaterialsCost = 50;
+    // =========================================
+
     protected int _currentHealth;
     private bool _isConstructing = false;
     private Coroutine _constructionCoroutine;
@@ -28,6 +36,14 @@ public class Building : MonoBehaviour
     // Cost properties
     public int ConstructionCostGold => _constructionCostGold;
     public int ConstructionCostMaterials => _constructionCostMaterials;
+
+    // ========== NEW: UPGRADE PROPERTIES ==========
+    public int CurrentLevel => _currentLevel;
+    public int MaxLevel => _maxLevel;
+    public bool CanUpgrade => _currentLevel < _maxLevel;
+    public int UpgradeGoldCost => _upgradeGoldCost;
+    public int UpgradeMaterialsCost => _upgradeMaterialsCost;
+    // =============================================
 
     protected virtual void Start()
     {
@@ -144,4 +160,46 @@ public class Building : MonoBehaviour
         EventManager.TriggerEvent("BuildingDestroyed", this);
         Destroy(gameObject);
     }
+
+    // ========== NEW: UPGRADE SYSTEM METHODS ==========
+    public bool TryUpgrade()
+    {
+        if (!CanUpgrade)
+        {
+            Debug.LogWarning($"{_buildingName} is already max level!");
+            return false;
+        }
+        
+        // Check if ResourceManager exists
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogWarning("ResourceManager not found! Cannot upgrade.");
+            return false;
+        }
+        
+        if (!ResourceManager.Instance.SpendResources(_upgradeGoldCost, _upgradeMaterialsCost, 0))
+        {
+            Debug.LogWarning($"Not enough resources to upgrade {_buildingName}!");
+            return false;
+        }
+        
+        _currentLevel++;
+        OnUpgraded();
+        
+        Debug.Log($"{_buildingName} upgraded to level {_currentLevel}");
+        return true;
+    }
+
+    protected virtual void OnUpgraded()
+    {
+        // Increase max health by 20% per level
+        int oldMaxHealth = _maxHealth;
+        _maxHealth = Mathf.RoundToInt(_maxHealth * 1.2f);
+        _currentHealth = _maxHealth;
+        
+        Debug.Log($"{_buildingName} health increased: {oldMaxHealth} → {_maxHealth}");
+        
+        // Child classes override this for specific upgrades
+    }
+    // =================================================
 }

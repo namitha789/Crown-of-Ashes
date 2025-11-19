@@ -103,4 +103,23 @@ public class Tower : Building
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, _attackRange);
     }
+
+    // ========== NEW: UPGRADE OVERRIDE ==========
+    protected override void OnUpgraded()
+    {
+        base.OnUpgraded(); // Call parent (increases health)
+        
+        // Store old values for logging
+        int oldDamage = _attackDamage;
+        float oldRange = _attackRange;
+        
+        // Increase damage by 10 per level
+        _attackDamage += 10;
+        
+        // Increase range slightly
+        _attackRange += 1f;
+        
+        Debug.Log($"Tower upgraded! Damage: {oldDamage} → {_attackDamage}, Range: {oldRange} → {_attackRange}");
+    }
+    // ===========================================
 }
