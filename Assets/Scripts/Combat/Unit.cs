@@ -1,40 +1,425 @@
 using UnityEngine;
-   using UnityEngine.AI;
+using UnityEngine.AI;
+using System.Collections.Generic;
 
-   public class Unit : MonoBehaviour
-   {
-       [SerializeField] private GameObject _selectionIndicator;
-       [SerializeField] private UnitData _unitData;
-       
-       private NavMeshAgent _navAgent;
-       private bool _isSelected;
-       
-       private void Awake()
-       {
-           _navAgent = GetComponent<NavMeshAgent>();
-           _selectionIndicator.SetActive(false);
-       }
-       
-       public void Select()
-       {
-           _isSelected = true;
-           _selectionIndicator.SetActive(true);
-       }
-       
-       public void Deselect()
-       {
-           _isSelected = false;
-           _selectionIndicator.SetActive(false);
-       }
-       
-       public void MoveTo(Vector3 position)
-       {
-           _navAgent.SetDestination(position);
-       }
-       
-       public void Attack(Unit target)
-       {
-           // To be implemented in Sprint 1
-           Debug.Log($"{gameObject.name} attacking {target.gameObject.name}");
-       }
-   }
+[RequireComponent(typeof(NavMeshAgent))]
+public class Unit : MonoBehaviour
+{
+    public enum CombatState
+    {
+        Idle,
+        Moving,
+        Chasing,
+        Attacking,
+        AttackingOutpost,
+        Dead
+    }
+
+    [Header("Unit Properties")]
+    [SerializeField] private string _unitName = "Unit";
+    [SerializeField] private bool _isPlayerUnit = true;
+    
+    [Header("Combat Stats")]
+    [SerializeField] private int _maxHealth = 100;
+    [SerializeField] private int _attackDamage = 20;
+    [SerializeField] private float _attackRange = 2f;
+    [SerializeField] private float _attackSpeed = 1.5f;
+    [SerializeField] private float _detectionRange = 10f;
+    
+    [Header("Visual Feedback")]
+    [SerializeField] private GameObject _selectionIndicator;
+
+    [Header("Enemy Detection")]
+    [SerializeField] private LayerMask _enemyLayer;
+    
+    private NavMeshAgent _navAgent;
+    private int _currentHealth;
+    private bool _isSelected;
+    private Unit _currentTarget;
+    private SimpleOutpost _currentOutpostTarget;
+    private float _attackTimer;
+    private bool _isDead = false;
+    private float _lastAttackTime = 0f;
+    private CombatState _currentState = CombatState.Idle;
+    
+    // Public Properties
+    public bool IsSelected => _isSelected;
+    public string UnitName => _unitName;
+    public bool IsPlayerUnit => _isPlayerUnit;
+    public int CurrentHealth => _currentHealth;
+    public int MaxHealth => _maxHealth;
+    public bool IsDead => _isDead;
+    public int AttackDamage => _attackDamage;
+    public float AttackRange => _attackRange;
+    
+    private void Awake()
+    {
+        _navAgent = GetComponent<NavMeshAgent>();
+        _currentHealth = _maxHealth;
+        
+        if (_selectionIndicator != null)
+        {
+            _selectionIndicator.SetActive(false);
+        }
+    }
+    
+    private void Update()
+    {
+        if (_isDead) return;
+        
+        switch (_currentState)
+        {
+            case CombatState.Idle:
+                HandleIdleState();
+                break;
+            case CombatState.Moving:
+                HandleMovingState();
+                break;
+            case CombatState.Chasing:
+                HandleChasingState();
+                break;
+            case CombatState.Attacking:
+                HandleAttackingState();
+                break;
+            case CombatState.AttackingOutpost:
+                HandleAttackingOutpostState();
+                break;
+        }
+    }
+
+    private void HandleIdleState()
+    {
+        // Look for enemies
+        Unit enemy = FindNearestEnemy();
+        if (enemy != null)
+        {
+            _currentTarget = enemy;
+            _currentOutpostTarget = null;
+            ChangeState(CombatState.Chasing);
+        }
+    }
+
+    private void HandleMovingState()
+    {
+        // Check if reached destination
+        if (!_navAgent.pathPending && _navAgent.remainingDistance <= _navAgent.stoppingDistance)
+        {
+            ChangeState(CombatState.Idle);
+        }
+        
+        // Check for enemies while moving
+        Unit enemy = FindNearestEnemy();
+        if (enemy != null)
+        {
+            _currentTarget = enemy;
+            _currentOutpostTarget = null;
+            ChangeState(CombatState.Chasing);
+        }
+    }
+
+    private void HandleChasingState()
+    {
+        if (_currentTarget == null || _currentTarget.IsDead)
+        {
+            ChangeState(CombatState.Idle);
+            return;
+        }
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.transform.position);
+        
+        if (distanceToTarget <= _attackRange)
+        {
+            ChangeState(CombatState.Attacking);
+        }
+        else
+        {
+            // Chase target
+            _navAgent.SetDestination(_currentTarget.transform.position);
+            _navAgent.isStopped = false;
+        }
+    }
+
+    private void HandleAttackingState()
+    {
+        if (_currentTarget == null || _currentTarget.IsDead)
+        {
+            ChangeState(CombatState.Idle);
+            return;
+        }
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.transform.position);
+        
+        if (distanceToTarget > _attackRange)
+        {
+            // Target moved out of range
+            ChangeState(CombatState.Chasing);
+        }
+        else
+        {
+            // Stay in place and attack
+            _navAgent.isStopped = true;
+            transform.LookAt(_currentTarget.transform);
+            AttackTarget(_currentTarget);
+        }
+    }
+
+    private void HandleAttackingOutpostState()
+    {
+        if (_currentOutpostTarget == null || _currentOutpostTarget.IsDestroyed)
+        {
+            _currentOutpostTarget = null;
+            ChangeState(CombatState.Idle);
+            return;
+        }
+        
+        float distanceToTarget = Vector3.Distance(transform.position, _currentOutpostTarget.transform.position);
+        
+        if (distanceToTarget > _attackRange)
+        {
+            // Move closer to outpost
+            _navAgent.SetDestination(_currentOutpostTarget.transform.position);
+            _navAgent.isStopped = false;
+        }
+        else
+        {
+            // Stay in place and attack
+            _navAgent.isStopped = true;
+            transform.LookAt(_currentOutpostTarget.transform);
+            AttackOutpost(_currentOutpostTarget);
+        }
+    }
+
+    private void ChangeState(CombatState newState)
+    {
+        // Reset state-specific settings when leaving a state
+        if (_currentState == CombatState.Attacking || _currentState == CombatState.AttackingOutpost)
+        {
+            _navAgent.isStopped = false;
+        }
+        
+        _currentState = newState;
+        Debug.Log($"{gameObject.name} changed state to {newState}");
+    }
+    
+    private void AttackTarget(Unit target)
+    {
+        if (target == null || target.IsDead) return;
+        
+        // Check if enough time has passed since last attack
+        if (Time.time < _lastAttackTime + _attackSpeed) return;
+        
+        // Check if target is in range
+        float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+        if (distanceToTarget > _attackRange) return;
+        
+        // Perform attack
+        _lastAttackTime = Time.time;
+        target.TakeDamage(_attackDamage);
+        
+        // Face the target
+        transform.LookAt(target.transform);
+        
+        // Trigger attack event for animation/VFX
+        EventManager.TriggerEvent("UnitAttacked", new CombatData(this, target, _attackDamage, target.transform.position));
+        
+        Debug.Log($"{gameObject.name} attacked {target.gameObject.name} for {_attackDamage} damage");
+    }
+    
+    private void AttackOutpost(SimpleOutpost outpost)
+    {
+        if (outpost == null || outpost.IsDestroyed) return;
+        
+        // Check if enough time has passed since last attack
+        if (Time.time < _lastAttackTime + _attackSpeed) return;
+        
+        // Check if target is in range
+        float distanceToTarget = Vector3.Distance(transform.position, outpost.transform.position);
+        if (distanceToTarget > _attackRange) return;
+        
+        // Perform attack
+        _lastAttackTime = Time.time;
+        outpost.TakeDamage(_attackDamage);
+        
+        // Face the target
+        transform.LookAt(outpost.transform);
+        
+        Debug.Log($"{gameObject.name} attacked outpost for {_attackDamage} damage!");
+    }
+    
+    public void TakeDamage(int damage)
+    {
+        if (_isDead) return;
+        
+        _currentHealth -= damage;
+        _currentHealth = Mathf.Max(0, _currentHealth);
+        
+        // Trigger damage event for VFX
+        EventManager.TriggerEvent("UnitDamaged", new CombatData
+        {
+            Target = this,
+            Damage = damage,
+            HitPosition = transform.position
+        });
+        
+        EventManager.TriggerEvent("UnitHealthChanged", this);
+        
+        Debug.Log($"{gameObject.name} took {damage} damage. HP: {_currentHealth}/{_maxHealth}");
+        
+        if (_currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+    
+    private void Die()
+    {
+        if (_isDead) return;
+        
+        _isDead = true;
+        _currentState = CombatState.Dead;
+        
+        // Trigger death event for VFX
+        EventManager.TriggerEvent("UnitDied", transform.position);
+        
+        Debug.Log($"{gameObject.name} has died!");
+        
+        // Disable components
+        if (_navAgent != null) _navAgent.enabled = false;
+        if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
+        
+        // Hide selection indicator
+        if (_selectionIndicator != null) _selectionIndicator.SetActive(false);
+        
+        // Destroy after delay for death animation
+        Destroy(gameObject, 1f);
+    }
+
+    private Unit FindNearestEnemy()
+    {
+        Collider[] enemies = Physics.OverlapSphere(transform.position, _detectionRange, _enemyLayer);
+        
+        Unit nearestEnemy = null;
+        float nearestDistance = Mathf.Infinity;
+        
+        foreach (Collider enemyCollider in enemies)
+        {
+            Unit enemy = enemyCollider.GetComponent<Unit>();
+            if (enemy != null && !enemy.IsDead && enemy.IsPlayerUnit != this.IsPlayerUnit)
+            {
+                float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestEnemy = enemy;
+                }
+            }
+        }
+        
+        return nearestEnemy;
+    }
+
+    public void ApplyAreaDamage(int damage, Vector3 sourcePosition)
+    {
+        TakeDamage(damage);
+        
+        // Visual feedback - push unit back slightly
+        Vector3 pushDirection = (transform.position - sourcePosition).normalized;
+        transform.position += pushDirection * 0.5f;
+    }
+
+    public static List<Unit> GetUnitsInRadius(Vector3 center, float radius, LayerMask targetLayer)
+    {
+        List<Unit> units = new List<Unit>();
+        Collider[] hits = Physics.OverlapSphere(center, radius, targetLayer);
+        
+        foreach (Collider hit in hits)
+        {
+            Unit unit = hit.GetComponent<Unit>();
+            if (unit != null && !unit.IsDead)
+            {
+                units.Add(unit);
+            }
+        }
+        
+        return units;
+    }
+
+    public void MoveTo(Vector3 targetPosition)
+    {
+        if (_isDead) return;
+        
+        _currentTarget = null;
+        _currentOutpostTarget = null;
+        _navAgent.SetDestination(targetPosition);
+        _navAgent.isStopped = false;
+        
+        ChangeState(CombatState.Moving);
+        
+        EventManager.TriggerEvent("UnitMoved", targetPosition);
+        Debug.Log($"{gameObject.name} moving to {targetPosition}");
+    }
+
+    public void SetTarget(Unit target)
+    {
+        if (_isDead) return;
+        
+        _currentTarget = target;
+        _currentOutpostTarget = null;
+        ChangeState(CombatState.Chasing);
+        
+        Debug.Log($"{gameObject.name} targeting {target.gameObject.name}");
+    }
+    
+    public void SetOutpostTarget(SimpleOutpost outpost)
+    {
+        if (_isDead || outpost == null) return;
+        
+        _currentTarget = null;
+        _currentOutpostTarget = outpost;
+        ChangeState(CombatState.AttackingOutpost);
+        
+        Debug.Log($"{gameObject.name} targeting outpost");
+    }
+    
+    public void ClearTarget()
+    {
+        _currentTarget = null;
+        _currentOutpostTarget = null;
+        ChangeState(CombatState.Idle);
+    }
+    
+    public void AttackMove(Vector3 position)
+    {
+        MoveTo(position);
+        // The unit will automatically engage enemies it encounters
+    }
+
+    public void Select()
+    {
+        _isSelected = true;
+        if (_selectionIndicator != null)
+        {
+            _selectionIndicator.SetActive(true);
+        }
+    }
+
+    public void Deselect()
+    {
+        _isSelected = false;
+        if (_selectionIndicator != null)
+        {
+            _selectionIndicator.SetActive(false);
+        }
+    }
+    
+    private void OnDrawGizmosSelected()
+    {
+        // Draw detection range
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _detectionRange);
+        
+        // Draw attack range
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _attackRange);
+    }
+}
