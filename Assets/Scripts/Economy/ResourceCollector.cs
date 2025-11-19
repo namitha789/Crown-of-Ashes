@@ -35,7 +35,6 @@ public class ResourceCollector : Building
         }
     }
     
-    // Only use the override method - remove OnConstructionComplete()
     protected override void CompleteConstruction()
     {
         base.CompleteConstruction();
@@ -62,4 +61,21 @@ public class ResourceCollector : Building
         ResourceManager.Instance.AddResources(_goldIncomeAmount, _materialsIncomeAmount, 0);
         Debug.Log($"[ResourceCollector] 💰 Generated: +{_goldIncomeAmount}G, +{_materialsIncomeAmount}M");
     }
+
+    // ========== NEW: UPGRADE OVERRIDE ==========
+    protected override void OnUpgraded()
+    {
+        base.OnUpgraded(); // Call parent (increases health)
+        
+        // Store old values for logging
+        int oldGold = _goldIncomeAmount;
+        int oldMaterials = _materialsIncomeAmount;
+        
+        // Increase income by 2 gold and 1 material per level
+        _goldIncomeAmount += 2;
+        _materialsIncomeAmount += 1;
+        
+        Debug.Log($"ResourceCollector upgraded! Income: {oldGold}G → {_goldIncomeAmount}G, {oldMaterials}M → {_materialsIncomeAmount}M per {_incomeInterval}s");
+    }
+    // ===========================================
 }

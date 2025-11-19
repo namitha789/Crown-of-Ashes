@@ -11,6 +11,13 @@ public class ResourceManager : MonoBehaviour
     
     private ResourceData _playerResources;
     
+    // ========== NEW: PUBLIC PROPERTIES FOR UPGRADE SYSTEM ==========
+    public int Gold => _playerResources.Gold;
+    public int Materials => _playerResources.Materials;
+    public int Influence => _playerResources.Influence;
+    public int Food => _playerResources.Influence; // Alias for compatibility
+    // ===============================================================
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
