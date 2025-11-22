@@ -78,7 +78,7 @@ public class SelectionManager : MonoBehaviour
                         Debug.Log($"Clicked on building: {building.gameObject.name}");
                         
                         // Show building UI
-                        BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+                        BuildingInfoUI buildingUI = FindFirstObjectByType<BuildingInfoUI>();
                         if (buildingUI != null)
                         {
                             buildingUI.ShowBuilding(building);
@@ -99,7 +99,7 @@ public class SelectionManager : MonoBehaviour
             DeselectAll();
             
             // Also hide building UI
-            BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+            BuildingInfoUI buildingUI = FindFirstObjectByType<BuildingInfoUI>();
             if (buildingUI != null)
             {
                 buildingUI.HidePanel();

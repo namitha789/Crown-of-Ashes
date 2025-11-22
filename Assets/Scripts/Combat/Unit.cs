@@ -41,6 +41,8 @@ public class Unit : MonoBehaviour
     private bool _isDead = false;
     private float _lastAttackTime = 0f;
     private CombatState _currentState = CombatState.Idle;
+
+    private Animator _animator;
     
     // Public Properties
     public bool IsSelected => _isSelected;
@@ -55,8 +57,9 @@ public class Unit : MonoBehaviour
     private void Awake()
     {
         _navAgent = GetComponent<NavMeshAgent>();
+        _animator = GetComponent<Animator>();
         _currentHealth = _maxHealth;
-        
+
         if (_selectionIndicator != null)
         {
             _selectionIndicator.SetActive(false);
@@ -66,6 +69,7 @@ public class Unit : MonoBehaviour
     private void Update()
     {
         if (_isDead) return;
+        UpdateAnimation();
         
         switch (_currentState)
         {
@@ -121,12 +125,13 @@ public class Unit : MonoBehaviour
     {
         if (_currentTarget == null || _currentTarget.IsDead)
         {
+            _navAgent.ResetPath();
             ChangeState(CombatState.Idle);
             return;
         }
-        
+
         float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.transform.position);
-        
+
         if (distanceToTarget <= _attackRange)
         {
             ChangeState(CombatState.Attacking);
@@ -143,12 +148,13 @@ public class Unit : MonoBehaviour
     {
         if (_currentTarget == null || _currentTarget.IsDead)
         {
+            _navAgent.ResetPath();
             ChangeState(CombatState.Idle);
             return;
         }
-        
+
         float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.transform.position);
-        
+
         if (distanceToTarget > _attackRange)
         {
             // Target moved out of range
@@ -168,12 +174,13 @@ public class Unit : MonoBehaviour
         if (_currentOutpostTarget == null || _currentOutpostTarget.IsDestroyed)
         {
             _currentOutpostTarget = null;
+            _navAgent.ResetPath();
             ChangeState(CombatState.Idle);
             return;
         }
-        
+
         float distanceToTarget = Vector3.Distance(transform.position, _currentOutpostTarget.transform.position);
-        
+
         if (distanceToTarget > _attackRange)
         {
             // Move closer to outpost
@@ -196,7 +203,21 @@ public class Unit : MonoBehaviour
         {
             _navAgent.isStopped = false;
         }
-        
+
+        // Immediately stop movement when entering Attacking state
+        if (newState == CombatState.Attacking || newState == CombatState.AttackingOutpost)
+        {
+            _navAgent.isStopped = true;
+            _navAgent.velocity = Vector3.zero; // Kill all momentum immediately
+        }
+
+        // Clear path when entering Idle to stop all movement
+        if (newState == CombatState.Idle)
+        {
+            _navAgent.ResetPath();
+            _navAgent.isStopped = false;
+        }
+
         _currentState = newState;
         Debug.Log($"{gameObject.name} changed state to {newState}");
     }
@@ -204,99 +225,123 @@ public class Unit : MonoBehaviour
     private void AttackTarget(Unit target)
     {
         if (target == null || target.IsDead) return;
-        
+
         // Check if enough time has passed since last attack
         if (Time.time < _lastAttackTime + _attackSpeed) return;
-        
+
         // Check if target is in range
         float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
         if (distanceToTarget > _attackRange) return;
-        
+
         // Perform attack
         _lastAttackTime = Time.time;
         target.TakeDamage(_attackDamage);
-        
+
         // Face the target
         transform.LookAt(target.transform);
-        
+
+        // Trigger attack animation
+        if (_animator != null)
+        {
+            _animator.SetTrigger("Attack");
+        }
+
         // Trigger attack event for animation/VFX
         EventManager.TriggerEvent("UnitAttacked", new CombatData(this, target, _attackDamage, target.transform.position));
-        
+
         Debug.Log($"{gameObject.name} attacked {target.gameObject.name} for {_attackDamage} damage");
     }
     
     private void AttackOutpost(SimpleOutpost outpost)
     {
         if (outpost == null || outpost.IsDestroyed) return;
-        
+
         // Check if enough time has passed since last attack
         if (Time.time < _lastAttackTime + _attackSpeed) return;
-        
+
         // Check if target is in range
         float distanceToTarget = Vector3.Distance(transform.position, outpost.transform.position);
         if (distanceToTarget > _attackRange) return;
-        
+
         // Perform attack
         _lastAttackTime = Time.time;
         outpost.TakeDamage(_attackDamage);
-        
+
         // Face the target
         transform.LookAt(outpost.transform);
-        
+
+        // Trigger attack animation
+        if (_animator != null)
+        {
+            _animator.SetTrigger("Attack");
+        }
+
         Debug.Log($"{gameObject.name} attacked outpost for {_attackDamage} damage!");
     }
     
-    public void TakeDamage(int damage)
+      public void TakeDamage(int damage)
+      {
+          if (_isDead) return;
+
+          _currentHealth -= damage;
+          _currentHealth = Mathf.Max(_currentHealth, 0);
+
+          Debug.Log($"{gameObject.name} took {damage} damage! HP: {_currentHealth}/{_maxHealth}");
+
+          // Trigger damage event
+          EventManager.TriggerEvent("UnitDamaged", new CombatData
+          {
+              Attacker = null,
+              Target = this,
+              Damage = damage,
+              HitPosition = transform.position
+          });
+
+          if (_currentHealth <= 0)
+          {
+              Die();
+          }
+      }
+      private void PerformAttack(Unit target)
+      {
+          if (_animator != null)
+          {
+              _animator.SetTrigger("Attack"); // Trigger attack animation
+          }
+
+          // Deal damage
+          target.TakeDamage(_attackDamage);
+      }    
+    private void Die()
     {
         if (_isDead) return;
         
-        _currentHealth -= damage;
-        _currentHealth = Mathf.Max(0, _currentHealth);
+        _isDead = true;
+        if (_animator != null)
+            {
+                _animator.SetTrigger("Die");
+            }
         
-        // Trigger damage event for VFX
-        EventManager.TriggerEvent("UnitDamaged", new CombatData
+        // Trigger death event
+        EventManager.TriggerEvent("UnitDied", transform.position);
+        
+        Debug.Log($"{gameObject.name} has died!");
+        
+        // Disable components
+        GetComponent<NavMeshAgent>().enabled = false;
+        GetComponent<Collider>().enabled = false;
+        
+        // Trigger death effect if available
+        UnitDeathEffect deathEffect = GetComponent<UnitDeathEffect>();
+        if (deathEffect != null)
         {
-            Target = this,
-            Damage = damage,
-            HitPosition = transform.position
-        });
-        
-        EventManager.TriggerEvent("UnitHealthChanged", this);
-        
-        Debug.Log($"{gameObject.name} took {damage} damage. HP: {_currentHealth}/{_maxHealth}");
-        
-        if (_currentHealth <= 0)
+            deathEffect.TriggerDeath(); // Will destroy after fade
+        }
+        else
         {
-            Die();
+            Destroy(gameObject, 1f); // Fallback
         }
     }
-    
-    private void Die()
-{
-    if (_isDead) return;
-    
-    _isDead = true;
-    
-    // Trigger death event
-    EventManager.TriggerEvent("UnitDied", transform.position);
-    
-    Debug.Log($"{gameObject.name} has died!");
-    
-    // Disable components
-    GetComponent<NavMeshAgent>().enabled = false;
-    GetComponent<Collider>().enabled = false;
-    
-    // Trigger death effect if available
-    UnitDeathEffect deathEffect = GetComponent<UnitDeathEffect>();
-    if (deathEffect != null)
-    {
-        deathEffect.TriggerDeath(); // Will destroy after fade
-    }
-    else
-    {
-        Destroy(gameObject, 1f); // Fallback
-    }
-}
 
 
     private Unit FindNearestEnemy()
@@ -427,4 +472,14 @@ public class Unit : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, _attackRange);
     }
+
+    private void UpdateAnimation()
+    {
+        if (_animator == null) return;
+
+        // Set speed parameter based on NavMeshAgent velocity
+        float speed = _navAgent.velocity.magnitude;
+        _animator.SetFloat("Speed", speed);
+    }
+
 }

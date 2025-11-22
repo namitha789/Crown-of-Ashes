@@ -65,4 +65,13 @@ public class SimpleOutpost : MonoBehaviour
         
         Destroy(gameObject);
     }
+
+    public Vector3 GetPlayerCommandCenterPosition()
+    {
+        if (CommandCenter.PlayerInstance != null)
+        {
+            return CommandCenter.PlayerInstance.Position;
+        }
+        return Vector3.zero;
+    }
 }
