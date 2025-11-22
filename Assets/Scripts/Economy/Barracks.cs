@@ -44,7 +44,7 @@ public class Barracks : Building
 
     private void OpenUI()
     {
-        BuildingInfoUI panel = FindObjectOfType<BuildingInfoUI>(true);
+        BuildingInfoUI panel = FindAnyObjectByType<BuildingInfoUI>(FindObjectsInactive.Include);
         
         if (panel != null)
         {
@@ -80,7 +80,7 @@ public class Barracks : Building
             ProductionTime = _trainingTime
         });
 
-        BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+        BuildingInfoUI buildingUI = FindAnyObjectByType<BuildingInfoUI>();
         if (buildingUI != null)
         {
             buildingUI.ShowBuilding(this);

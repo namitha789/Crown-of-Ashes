@@ -33,7 +33,7 @@ public class DamageNumberAnimator : MonoBehaviour
         
         // Fade out
         _elapsed += Time.deltaTime;
-        float alpha = Mathf.Lerp(1f, 0f, _elapsed / _lifetime);
+        float alpha = Mathf.Lerp(1f, 0f, _elapsed * _fadeSpeed/ _lifetime);
         _text.color = new Color(_startColor.r, _startColor.g, _startColor.b, alpha);
     }
     

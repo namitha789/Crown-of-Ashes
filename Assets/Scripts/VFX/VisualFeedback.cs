@@ -5,7 +5,7 @@ public class VisualFeedback : MonoBehaviour
 {
     [Header("Selection VFX")]
     [SerializeField] private GameObject _selectionCirclePrefab;
-    [SerializeField] private float _selectionCircleOffset = 0.1f;
+    // [SerializeField] private float _selectionCircleOffset = 0.1f;
 
     [Header("Movement VFX")]
     [SerializeField] private GameObject _movementMarkerPrefab;
