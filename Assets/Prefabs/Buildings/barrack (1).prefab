@@ -148,7 +148,13 @@ MonoBehaviour:
   _maxHealth: 200
   _constructionTime: 5
   _constructionEffect: {fileID: 0}
-  _warriorPrefab: {fileID: 2476698572350630159, guid: 06c753ef820336c49aebd7d5f75f6393, type: 3}
+  _constructionCostGold: 50
+  _constructionCostMaterials: 25
+  _currentLevel: 1
+  _maxLevel: 3
+  _upgradeGoldCost: 100
+  _upgradeMaterialsCost: 50
+  _warriorPrefab: {fileID: 5413480432836569717, guid: 9dece843ad145394bbecd0272b7db729, type: 3}
   _spawnPoint: {fileID: 5041265718565021740}
   _trainingCost: 50
   _trainingTime: 3
