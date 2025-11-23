@@ -40,7 +40,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 451788825030403562}
-  m_Layer: 0
+  - component: {fileID: 5367018036303162711}
+  - component: {fileID: 4149011227571158382}
+  m_Layer: 6
   m_Name: Outpost_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,6 +68,52 @@ Transform:
   - {fileID: 2618363449768544880}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5367018036303162711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656428719037592396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db695f4510c0f304d8558a6ff3a30304, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutpostAttackController
+  _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
+  _spawnPoints:
+  - {fileID: 3208565689044856084}
+  - {fileID: 5871565411244332119}
+  - {fileID: 7591658670367055558}
+  - {fileID: 3602859721143885060}
+  _raidInterval: 90
+  _raidsPerInterval: 1
+  _counterattackUnits: 3
+  _counterattackCooldown: 15
+  _finalAssaultUnits: 5
+  _attacksEnabled: 1
+--- !u!114 &4149011227571158382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656428719037592396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db76042601b2e814cae98585a1373877, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleOutpost
+  _maxHealth: 500
+  _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
+  _spawnPoints:
+  - {fileID: 3208565689044856084}
+  - {fileID: 5871565411244332119}
+  - {fileID: 7591658670367055558}
+  - {fileID: 3602859721143885060}
+  _initialEnemyCount: 3
+  _rewardGold: 100
+  _rewardShards: 50
 --- !u!1 &4123984696923296490
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,9 +308,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2037715617761116644}
-    - targetCorrespondingSourceObject: {fileID: 100000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 4311857752780150696}
   m_SourcePrefab: {fileID: 100100000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
 --- !u!1 &1911554783479195669 stripped
@@ -270,28 +315,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
   m_PrefabInstance: {fileID: 1911554783479099061}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2037715617761116644
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1911554783479195669}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db76042601b2e814cae98585a1373877, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SimpleOutpost
-  _maxHealth: 20
-  _enemyUnitPrefab: {fileID: 2476698572350630159, guid: 193583356990e4f43851cc517fc29ee7, type: 3}
-  _spawnPoints:
-  - {fileID: 3208565689044856084}
-  - {fileID: 5871565411244332119}
-  - {fileID: 7591658670367055558}
-  - {fileID: 3602859721143885060}
-  _initialEnemyCount: 3
-  _rewardGold: 100
-  _rewardShards: 50
 --- !u!65 &4311857752780150696
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -548,9 +571,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9084275281703877156, guid: 9ef95eb74fbef4145bc387e83b897495, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5419378638627153554}
-    - targetCorrespondingSourceObject: {fileID: 9084275281703877156, guid: 9ef95eb74fbef4145bc387e83b897495, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 9175461720836408199}
   m_SourcePrefab: {fileID: 100100000, guid: 9ef95eb74fbef4145bc387e83b897495, type: 3}
 --- !u!1 &4969646509292183104 stripped
@@ -558,28 +578,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9084275281703877156, guid: 9ef95eb74fbef4145bc387e83b897495, type: 3}
   m_PrefabInstance: {fileID: 4244201845738497124}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5419378638627153554
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4969646509292183104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db76042601b2e814cae98585a1373877, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SimpleOutpost
-  _maxHealth: 20
-  _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
-  _spawnPoints:
-  - {fileID: 3208565689044856084}
-  - {fileID: 5871565411244332119}
-  - {fileID: 7591658670367055558}
-  - {fileID: 3602859721143885060}
-  _initialEnemyCount: 4
-  _rewardGold: 100
-  _rewardShards: 50
 --- !u!208 &9175461720836408199
 NavMeshObstacle:
   m_ObjectHideFlags: 0
