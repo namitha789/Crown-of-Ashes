@@ -154,7 +154,7 @@ public class SelectionManager : MonoBehaviour
         }
         
         // Commander ability hotkey
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
