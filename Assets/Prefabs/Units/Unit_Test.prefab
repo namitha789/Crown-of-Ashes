@@ -194,6 +194,7 @@ MonoBehaviour:
   _unit: {fileID: 2059223126963407755}
   _fillImage: {fileID: 7470303689985729130}
   _canvas: {fileID: 4724988827886919226}
+  _hpText: {fileID: 0}
   _offset: {x: 0, y: 2, z: 0}
   _hideWhenFull: 1
 --- !u!1 &1383882356633543760
@@ -635,7 +636,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2
+      value: 5.3
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

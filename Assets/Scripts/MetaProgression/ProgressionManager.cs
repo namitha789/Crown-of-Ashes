@@ -9,6 +9,10 @@ public class ProgressionManager : MonoBehaviour
     [SerializeField] private int _totalRuns = 0;
     [SerializeField] private int _totalWins = 0;
     
+    // Track rewards earned in current run
+    private int _currentRunGold = 0;
+    private int _currentRunAshShards = 0;
+    
     public int TotalAshShards => _totalAshShards;
     public int TotalRuns => _totalRuns;
     public int TotalWins => _totalWins;
@@ -26,12 +30,23 @@ public class ProgressionManager : MonoBehaviour
         LoadProgression();
     }
     
+    // Add gold for current run
+    public void AddGoldThisRun(int amount)
+    {
+        _currentRunGold += amount;
+    }
+    
     public void AddAshShards(int amount)
     {
         _totalAshShards += amount;
+        _currentRunAshShards += amount; // Track for current run
         SaveProgression();
         EventManager.TriggerEvent("AshShardsChanged", _totalAshShards);
     }
+    
+    // Methods that GameOverUI needs
+    public int GetGoldEarned() => _currentRunGold;
+    public int GetAshShardsEarned() => _currentRunAshShards;
     
     public void CompleteRun(bool victory)
     {
@@ -41,6 +56,10 @@ public class ProgressionManager : MonoBehaviour
             _totalWins++;
         }
         SaveProgression();
+        
+        // Reset current run rewards after completing
+        _currentRunGold = 0;
+        _currentRunAshShards = 0;
     }
     
     private void SaveProgression()
