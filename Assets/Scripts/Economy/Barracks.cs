@@ -44,7 +44,7 @@ public class Barracks : Building
 
     private void OpenUI()
     {
-        BuildingInfoUI panel = FindObjectOfType<BuildingInfoUI>(true);
+        BuildingInfoUI panel = FindAnyObjectByType<BuildingInfoUI>(FindObjectsInactive.Include);
         
         if (panel != null)
         {
@@ -52,45 +52,68 @@ public class Barracks : Building
         }
     }
 
-    public void TrainWarrior()
-    {
-        if (_warriorPrefab == null)
-        {
-            return;
-        }
-
-        if (ResourceManager.Instance == null)
-        {
-            return;
-        }
-
-        if (_productionQueue.Count >= _maxQueueSize)
-        {
-            return;
-        }
-
-        if (!ResourceManager.Instance.SpendResources(_trainingCost, 0, 0))
-        {
-            return;
-        }
-
-        _productionQueue.Enqueue(new UnitOrder
-        {
-            UnitPrefab = _warriorPrefab,
-            ProductionTime = _trainingTime
-        });
-
-        BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
-        if (buildingUI != null)
-        {
-            buildingUI.ShowBuilding(this);
-        }
+   public void TrainWarrior()
+{
+    Debug.Log("TrainWarrior() called!");
     
-        if (IsConstructed && !_isProducing)
-        {
-            StartCoroutine(ProcessQueue());
-        }
+    if (_warriorPrefab == null)
+    {
+        Debug.LogError("BARRACKS: Warrior prefab is NOT assigned!");
+        return;
     }
+    
+    Debug.Log("✓ Warrior prefab assigned");
+
+    if (ResourceManager.Instance == null)
+    {
+        Debug.LogError("BARRACKS: ResourceManager not found!");
+        return;
+    }
+    
+    Debug.Log("✓ ResourceManager found");
+
+    if (_productionQueue.Count >= _maxQueueSize)
+    {
+        Debug.LogWarning($"BARRACKS: Queue full! ({_productionQueue.Count}/{_maxQueueSize})");
+        return;
+    }
+    
+    Debug.Log($"✓ Queue has space: {_productionQueue.Count}/{_maxQueueSize}");
+
+    if (!ResourceManager.Instance.SpendResources(_trainingCost, 0, 0))
+    {
+        Debug.LogWarning($"BARRACKS: Not enough resources! Need {_trainingCost} gold");
+        return;
+    }
+    
+    Debug.Log($"✓ Spent {_trainingCost} gold");
+
+    _productionQueue.Enqueue(new UnitOrder
+    {
+        UnitPrefab = _warriorPrefab,
+        ProductionTime = _trainingTime
+    });
+
+    Debug.Log($"✓ Added to queue. Queue size: {_productionQueue.Count}");
+
+    BuildingInfoUI buildingUI = FindAnyObjectByType<BuildingInfoUI>();
+    if (buildingUI != null)
+    {
+        buildingUI.ShowBuilding(this);
+    }
+
+    Debug.Log($"IsConstructed: {IsConstructed}, IsProducing: {_isProducing}");
+
+    if (IsConstructed && !_isProducing)
+    {
+        Debug.Log("🚀 Starting production!");
+        StartCoroutine(ProcessQueue());
+    }
+    else
+    {
+        Debug.LogWarning($"NOT starting production. IsConstructed: {IsConstructed}, IsProducing: {_isProducing}");
+    }
+}
 
     // This gets called by Building.cs via SendMessage
     private void OnConstructionComplete()

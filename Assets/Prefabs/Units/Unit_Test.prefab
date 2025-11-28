@@ -194,6 +194,7 @@ MonoBehaviour:
   _unit: {fileID: 2059223126963407755}
   _fillImage: {fileID: 7470303689985729130}
   _canvas: {fileID: 4724988827886919226}
+  _hpText: {fileID: 0}
   _offset: {x: 0, y: 2, z: 0}
   _hideWhenFull: 1
 --- !u!1 &1383882356633543760
@@ -323,6 +324,7 @@ GameObject:
   - component: {fileID: 5908775657668834419}
   - component: {fileID: 5862050941372548177}
   - component: {fileID: 2059223126963407755}
+  - component: {fileID: -4916627182702359690}
   m_Layer: 7
   m_Name: Unit_Test
   m_TagString: Untagged
@@ -470,6 +472,21 @@ MonoBehaviour:
   _enemyLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &-4916627182702359690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2476698572350630159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40603ccc4dfa5f647939e9c4656b393e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitDeathEffect
+  _deathVFXPrefab: {fileID: 3240921370777138229, guid: 3a697987d426c4e42b5bb60d2b80e2c7, type: 3}
+  _scorchMarkPrefab: {fileID: 1195476268980288084, guid: 2710bc674c54c0441b68d08c29f3e963, type: 3}
+  _fadeOutDuration: 0.5
 --- !u!1 &8737657190140512506
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,7 +636,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2
+      value: 5.3
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

@@ -9,28 +9,10 @@ public class SelectionInfo : MonoBehaviour
     
     private void Update()
     {
-        UpdateSelectionInfo();
+        UpdateInfo(); 
     }
     
-    private void UpdateSelectionInfo()
-    {
-        if (_selectionManager == null) return;
-        
-        List<Unit> selectedUnits = _selectionManager.GetSelectedUnits();
-        
-        if (selectedUnits.Count == 0)
-        {
-            _infoText.text = "No units selected";
-        }
-        else if (selectedUnits.Count == 1)
-        {
-            _infoText.text = $"Selected: {selectedUnits[0].UnitName}";
-        }
-        else
-        {
-            _infoText.text = $"Selected: {selectedUnits.Count} units";
-        }
-    }
+    
     private void UpdateInfo()
     {
         List<Unit> selected = _selectionManager.GetSelectedUnits();
@@ -68,7 +50,4 @@ public class SelectionInfo : MonoBehaviour
         
         return totalPercent / units.Count;
     }
-
-
 }
-

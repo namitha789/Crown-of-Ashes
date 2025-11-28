@@ -8,7 +8,7 @@ public class SelectionManager : MonoBehaviour
     [SerializeField] private LayerMask _enemyLayer;
     
     [Header("Building Selection")]
-    [SerializeField] private LayerMask _buildingLayer; // Add this field
+    [SerializeField] private LayerMask _buildingLayer;
     
     private List<Unit> _selectedUnits = new List<Unit>();
     private Camera _mainCamera;
@@ -29,8 +29,20 @@ public class SelectionManager : MonoBehaviour
     
     private void Update()
     {
+        // Add null check for camera before doing anything
+        if (_mainCamera == null)
+        {
+            return;
+        }
+        
+        CleanupDestroyedUnits();
         HandleSelection();
         HandleCommands();
+    }
+    
+    private void CleanupDestroyedUnits()
+    {
+        _selectedUnits.RemoveAll(unit => unit == null);
     }
     
     private void HandleSelection()
@@ -78,7 +90,7 @@ public class SelectionManager : MonoBehaviour
                         Debug.Log($"Clicked on building: {building.gameObject.name}");
                         
                         // Show building UI
-                        BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+                        BuildingInfoUI buildingUI = FindFirstObjectByType<BuildingInfoUI>();
                         if (buildingUI != null)
                         {
                             buildingUI.ShowBuilding(building);
@@ -99,7 +111,7 @@ public class SelectionManager : MonoBehaviour
             DeselectAll();
             
             // Also hide building UI
-            BuildingInfoUI buildingUI = FindObjectOfType<BuildingInfoUI>();
+            BuildingInfoUI buildingUI = FindFirstObjectByType<BuildingInfoUI>();
             if (buildingUI != null)
             {
                 buildingUI.HidePanel();
@@ -122,7 +134,10 @@ public class SelectionManager : MonoBehaviour
                     // Attack outpost command
                     foreach (Unit unit in _selectedUnits)
                     {
-                        unit.SetOutpostTarget(outpost);
+                        if (unit != null)
+                        {
+                            unit.SetOutpostTarget(outpost);
+                        }
                     }
                     return;
                 }
@@ -134,7 +149,10 @@ public class SelectionManager : MonoBehaviour
                     // Attack command
                     foreach (Unit unit in _selectedUnits)
                     {
-                        unit.SetTarget(enemyUnit);
+                        if (unit != null)
+                        {
+                            unit.SetTarget(enemyUnit);
+                        }
                     }
                     return;
                 }
@@ -144,7 +162,10 @@ public class SelectionManager : MonoBehaviour
                 
                 if (_selectedUnits.Count == 1)
                 {
-                    _selectedUnits[0].MoveTo(targetPosition);
+                    if (_selectedUnits[0] != null)
+                    {
+                        _selectedUnits[0].MoveTo(targetPosition);
+                    }
                 }
                 else
                 {
@@ -154,7 +175,7 @@ public class SelectionManager : MonoBehaviour
         }
         
         // Commander ability hotkey
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
@@ -172,6 +193,8 @@ public class SelectionManager : MonoBehaviour
         
         for (int i = 0; i < unitCount; i++)
         {
+            if (units[i] == null) continue;
+            
             int row = i / columns;
             int col = i % columns;
             
@@ -207,7 +230,10 @@ public class SelectionManager : MonoBehaviour
     {
         foreach (Unit unit in _selectedUnits)
         {
-            unit.Deselect();
+            if (unit != null)
+            {
+                unit.Deselect();
+            }
         }
         
         _selectedUnits.Clear();

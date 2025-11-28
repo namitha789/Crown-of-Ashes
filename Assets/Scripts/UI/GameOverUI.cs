@@ -1,60 +1,84 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameOverUI : MonoBehaviour
 {
-[Header("References")]
-[SerializeField] private GameObject _victoryPanel;
-[SerializeField] private GameObject _defeatPanel;
-[SerializeField] private TextMeshProUGUI _rewardsText;
-[SerializeField] private Button _continueButton;
-
-private void Start()
-{
-_victoryPanel.SetActive(false);
-_defeatPanel.SetActive(false);
-
-_continueButton.onClick.AddListener(OnContinueClicked);
-
-EventManager.StartListening("GameVictory", OnGameVictory);
-EventManager.StartListening("GameDefeat", OnGameDefeat);
-}
-
-private void OnDestroy()
-{
-EventManager.StopListening("GameVictory", OnGameVictory);
-EventManager.StopListening("GameDefeat", OnGameDefeat);
-}
-
-private void OnGameVictory(object data)
-{
-_victoryPanel.SetActive(true);
-Time.timeScale = 0f;
-
-int shardsEarned = 100;
-ProgressionManager.Instance.AddAshShards(shardsEarned);
-ProgressionManager.Instance.CompleteRun(true);
-
-_rewardsText.text = $"Ash Shards Earned: {shardsEarned}";
-}
-
-private void OnGameDefeat(object data)
-{
-_defeatPanel.SetActive(true);
-Time.timeScale = 0f;
-
-int shardsEarned = 25;
-ProgressionManager.Instance.AddAshShards(shardsEarned);
-ProgressionManager.Instance.CompleteRun(false);
-
-_rewardsText.text = $"Ash Shards Earned: {shardsEarned}";
-}
-
-private void OnContinueClicked()
-{
-Time.timeScale = 1f;
-SceneManager.LoadScene("MainMenu");
-}
+    [Header("Panels")]
+    [SerializeField] private GameObject _victoryPanel;
+    [SerializeField] private GameObject _defeatPanel;
+    
+    [Header("Victory Elements")]
+    [SerializeField] private TextMeshProUGUI _rewardsText;
+    [SerializeField] private Button _continueButton;
+    
+    [Header("Defeat Elements")]
+    [SerializeField] private Button _retryButton;
+    
+    private void OnEnable()
+    {
+        EventManager.StartListening("GameWon", OnGameWon);
+        EventManager.StartListening("GameLost", OnGameLost);
+    }
+    
+    private void OnDisable()
+    {
+        EventManager.StopListening("GameWon", OnGameWon);
+        EventManager.StopListening("GameLost", OnGameLost);
+    }
+    
+    private void Start()
+    {
+        _victoryPanel.SetActive(false);
+        _defeatPanel.SetActive(false);
+        
+        if (_continueButton != null)
+        {
+            _continueButton.onClick.AddListener(OnContinueClicked);
+        }
+        
+        if (_retryButton != null)
+        {
+            _retryButton.onClick.AddListener(OnRetryClicked);
+        }
+    }
+    
+    private void OnGameWon(object data)
+    {
+        Time.timeScale = 0f; // Pause game
+        
+        _victoryPanel.SetActive(true);
+        
+        // Calculate rewards (from ProgressionManager)
+        int goldEarned = ProgressionManager.Instance.GetGoldEarned();
+        int ashShards = ProgressionManager.Instance.GetAshShardsEarned();
+        
+        if (_rewardsText != null)
+        {
+            _rewardsText.text = $"Rewards:\n+{goldEarned} Gold\n+{ashShards} Ash Shards";
+        }
+        
+        Debug.Log("Victory screen displayed!");
+    }
+    
+    private void OnGameLost(object data)
+    {
+        Time.timeScale = 0f; // Pause game
+        
+        _defeatPanel.SetActive(true);
+        
+        Debug.Log("Defeat screen displayed!");
+    }
+    
+    private void OnContinueClicked()
+    {
+        Time.timeScale = 1f; // Resume
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
+    
+    private void OnRetryClicked()
+    {
+        Time.timeScale = 1f; // Resume
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
 }
