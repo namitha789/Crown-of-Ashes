@@ -7,7 +7,7 @@ public class OutpostAttackController : MonoBehaviour
     [Header("Attack Settings")]
     [SerializeField] private GameObject _enemyUnitPrefab;
     [SerializeField] private Transform[] _spawnPoints;
-    [SerializeField] private float _raidInterval = 90f; // Periodic raids every 90 seconds
+    [SerializeField] private float _raidInterval = 10f; // Periodic raids every 90 seconds
     [SerializeField] private int _raidsPerInterval = 1; // How many units to send per raid
     [SerializeField] private int _counterattackUnits = 3; // Units sent when damaged
     [SerializeField] private float _counterattackCooldown = 15f; // Prevent spam

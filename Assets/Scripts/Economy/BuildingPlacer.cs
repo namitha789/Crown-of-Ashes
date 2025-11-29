@@ -26,6 +26,10 @@ public class BuildingPlacer : MonoBehaviour
     private int _buildingCostGold;
     private int _buildingCostMaterials;
     private GameObject _buildingPrefab;
+
+    // Store original materials to restore after placement
+    private Material[] _originalMaterials;
+    private Renderer[] _previewRenderers;
     
     private void Awake()
     {
@@ -95,7 +99,15 @@ public class BuildingPlacer : MonoBehaviour
     
     // Re-activate the preview (Start() won't run because component is disabled)
     _currentBuildingPreview.SetActive(true);  // ← ADD THIS LINE
-    
+
+    // Store original materials before replacing with preview materials
+    _previewRenderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
+    _originalMaterials = new Material[_previewRenderers.Length];
+    for (int i = 0; i < _previewRenderers.Length; i++)
+    {
+        _originalMaterials[i] = _previewRenderers[i].material;
+    }
+
     Debug.Log($"Placing building. Cost: {goldCost} Gold, {materialsCost} Materials");
 }
     
@@ -188,13 +200,13 @@ public class BuildingPlacer : MonoBehaviour
                 col.enabled = true;
             }
             
-            // Restore materials FIRST
-            Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
-            foreach (Renderer renderer in renderers)
+            // Restore original materials FIRST
+            for (int i = 0; i < _previewRenderers.Length; i++)
             {
-                // You need to restore the original material, not just change color
-                // For now, we'll assume you want to reset it
-                renderer.material.color = Color.white;
+                if (_previewRenderers[i] != null && _originalMaterials[i] != null)
+                {
+                    _previewRenderers[i].material = _originalMaterials[i];
+                }
             }
             
             // Re-enable Building component LAST (this triggers Start())
@@ -206,6 +218,8 @@ public class BuildingPlacer : MonoBehaviour
             
             Debug.Log("Building placed successfully!");
             _currentBuildingPreview = null;
+            _originalMaterials = null;
+            _previewRenderers = null;
             _isPlacing = false;
         }
     }
@@ -217,7 +231,11 @@ public class BuildingPlacer : MonoBehaviour
         {
             Destroy(_currentBuildingPreview);
         }
-        
+
+        // Clean up stored references
+        _originalMaterials = null;
+        _previewRenderers = null;
+
         _isPlacing = false;
         Debug.Log("Building placement cancelled");
     }

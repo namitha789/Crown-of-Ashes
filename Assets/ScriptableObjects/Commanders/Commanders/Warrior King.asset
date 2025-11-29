@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Melee combat specialist
   abilityName: War Cry
   abilityDescription: Deals 50 damage in area
-  abilityCooldown: 60
+  abilityCooldown: 5
   abilityDamage: 50
   abilityRadius: 5
   startingGold: 200

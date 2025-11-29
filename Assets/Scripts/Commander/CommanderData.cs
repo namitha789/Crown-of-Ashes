@@ -11,7 +11,7 @@ public class CommanderData : ScriptableObject
     [Header("Ability")]
     public string abilityName;
     public string abilityDescription;
-    public float abilityCooldown = 60f;
+    public float abilityCooldown = 5f;
     public int abilityDamage = 50;
     public float abilityRadius = 5f;
     

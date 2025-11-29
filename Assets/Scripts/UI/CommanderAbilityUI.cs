@@ -26,7 +26,7 @@ public class CommanderAbilityUI : MonoBehaviour
         EventManager.StartListening("AbilityUsed", OnAbilityUsed);
 
         // Find AbilityTargeting component
-        _abilityTargeting = FindObjectOfType<AbilityTargeting>();
+        _abilityTargeting = FindFirstObjectByType<AbilityTargeting>();
 
         if (_instructionsText != null)
         {

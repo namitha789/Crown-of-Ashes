@@ -19,7 +19,7 @@ public class CombatManager : MonoBehaviour
     {
         if (target == null || target.IsDead) return;
 
-        target.TakeDamage(damage);
+        target.TakeDamage(damage, attacker);
 
         EventManager.TriggerEvent(
             "UnitDamaged",
