@@ -2484,7 +2484,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5367018036303162711, guid: fde22b2140621a6439bba1beabcd1255, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5367018036303162711, guid: fde22b2140621a6439bba1beabcd1255, type: 3}
       propertyPath: _raidInterval
@@ -4309,7 +4309,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &937008546
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4847,7 +4847,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &996788716
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7211,7 +7211,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -6.700012, y: -136.20001}
+  m_AnchoredPosition: {x: -6.699951, y: -136.20001}
   m_SizeDelta: {x: -667.5, y: -507.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1423722148
@@ -8907,7 +8907,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1706948632
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10722,7 +10722,11 @@ PrefabInstance:
     - target: {fileID: 1182940409074064448, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
       propertyPath: m_NavMeshData
       value: 
-      objectReference: {fileID: 23800000, guid: ef72e77c026ea6a429163a19debe9c6a, type: 2}
+      objectReference: {fileID: 0}
+    - target: {fileID: 1284619517398479845, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1927410691616473073, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
       propertyPath: m_LocalPosition.x
       value: -35
@@ -10791,6 +10795,38 @@ PrefabInstance:
       propertyPath: m_Center.z
       value: -1.219918
       objectReference: {fileID: 0}
+    - target: {fileID: 3458483619912828069, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_IncludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 51.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 37.81
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 3.64
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4968731287470086054, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
       propertyPath: _outpost
       value: 
@@ -10819,7 +10855,8 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1182940409074064448, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
