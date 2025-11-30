@@ -20,7 +20,17 @@ public class SimpleOutpost : MonoBehaviour
     private void Start()
     {
         _currentHealth = _maxHealth;
+        Debug.Log($"[SimpleOutpost] {gameObject.name} initialized at position: {transform.position}");
         SpawnInitialEnemies();
+    }
+
+    private void Update()
+    {
+        // Log position every second to check if it changes
+        if (Time.frameCount % 60 == 0)
+        {
+            Debug.Log($"[SimpleOutpost] {gameObject.name} current position: {transform.position}");
+        }
     }
 
     private void SpawnInitialEnemies()
