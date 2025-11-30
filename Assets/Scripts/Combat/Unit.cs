@@ -173,6 +173,7 @@ public class Unit : MonoBehaviour
     {
         if (_currentOutpostTarget == null || _currentOutpostTarget.IsDestroyed)
         {
+            Debug.Log($"{gameObject.name}: Outpost target is null or destroyed, returning to Idle");
             _currentOutpostTarget = null;
             _navAgent.ResetPath();
             ChangeState(CombatState.Idle);
@@ -181,11 +182,17 @@ public class Unit : MonoBehaviour
 
         float distanceToTarget = Vector3.Distance(transform.position, _currentOutpostTarget.transform.position);
 
+        Debug.Log($"{gameObject.name}: Moving to outpost {_currentOutpostTarget.gameObject.name} at {_currentOutpostTarget.transform.position}, distance: {distanceToTarget:F2}");
+
         if (distanceToTarget > _attackRange)
         {
             // Move closer to outpost
-            _navAgent.SetDestination(_currentOutpostTarget.transform.position);
+            Vector3 outpostPosition = _currentOutpostTarget.transform.position;
+            Debug.Log($"{gameObject.name}: Setting NavAgent destination to {outpostPosition} for outpost {_currentOutpostTarget.gameObject.name}");
+            Debug.Log($"{gameObject.name}: Current NavAgent destination: {_navAgent.destination}");
+            _navAgent.SetDestination(outpostPosition);
             _navAgent.isStopped = false;
+            Debug.Log($"{gameObject.name}: NavAgent destination after setting: {_navAgent.destination}");
         }
         else
         {
@@ -397,38 +404,37 @@ public class Unit : MonoBehaviour
     public void MoveTo(Vector3 targetPosition)
     {
         if (_isDead) return;
-        
+
+        Debug.LogWarning($"{gameObject.name}: MoveTo() called, CLEARING outpost target! Moving to {targetPosition}");
         _currentTarget = null;
         _currentOutpostTarget = null;
         _navAgent.SetDestination(targetPosition);
         _navAgent.isStopped = false;
-        
+
         ChangeState(CombatState.Moving);
-        
+
         EventManager.TriggerEvent("UnitMoved", targetPosition);
-        Debug.Log($"{gameObject.name} moving to {targetPosition}");
     }
 
     public void SetTarget(Unit target)
     {
         if (_isDead) return;
-        
+
+        Debug.LogWarning($"{gameObject.name}: SetTarget() called, CLEARING outpost target! Targeting unit {target.gameObject.name}");
         _currentTarget = target;
         _currentOutpostTarget = null;
         ChangeState(CombatState.Chasing);
-        
-        Debug.Log($"{gameObject.name} targeting {target.gameObject.name}");
     }
     
     public void SetOutpostTarget(SimpleOutpost outpost)
     {
         if (_isDead || outpost == null) return;
-        
+
         _currentTarget = null;
         _currentOutpostTarget = outpost;
         ChangeState(CombatState.AttackingOutpost);
-        
-        Debug.Log($"{gameObject.name} targeting outpost");
+
+        Debug.Log($"{gameObject.name} targeting outpost: {outpost.gameObject.name} at {outpost.transform.position}");
     }
     
     public void ClearTarget()
@@ -483,3 +489,34 @@ public class Unit : MonoBehaviour
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -177,9 +177,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 759419133779434394, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 986162618246165781, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2b416d67081fe4340bb5bdc2fe6ca88e, type: 3}
+    - target: {fileID: 1813678605856706613, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.73
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813678605856706613, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 1813678605856706613, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -33
+      objectReference: {fileID: 0}
     - target: {fileID: 3100099485838182316, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
       propertyPath: m_Name
       value: HealthBarCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 5349578636672456251, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: e6abd6c5ae38e5e49bf14f1919b819b4, type: 3}
+    - target: {fileID: 7198441974460906418, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -772,6 +800,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27bc0b6d5135b4c148c0b5920a7853f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitFlashEffect
-  _renderer: {fileID: 0}
+  _renderers: []
   _flashColor: {r: 1, g: 0, b: 0, a: 1}
   _flashDuration: 0.1

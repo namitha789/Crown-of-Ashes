@@ -131,11 +131,14 @@ public class SelectionManager : MonoBehaviour
                 SimpleOutpost outpost = hit.collider.GetComponent<SimpleOutpost>();
                 if (outpost != null && !outpost.IsDestroyed)
                 {
+                    Debug.Log($"RIGHT-CLICK DETECTED OUTPOST: {outpost.gameObject.name} at position {outpost.transform.position}");
+
                     // Attack outpost command
                     foreach (Unit unit in _selectedUnits)
                     {
                         if (unit != null)
                         {
+                            Debug.Log($"Commanding {unit.gameObject.name} to attack {outpost.gameObject.name}");
                             unit.SetOutpostTarget(outpost);
                         }
                     }

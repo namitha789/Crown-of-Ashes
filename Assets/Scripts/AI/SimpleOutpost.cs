@@ -35,8 +35,10 @@ public class SimpleOutpost : MonoBehaviour
     {
         if (_enemyUnitPrefab != null)
         {
-            GameObject enemy = Instantiate(_enemyUnitPrefab, position, Quaternion.identity);
-            enemy.transform.parent = transform;
+            // Spawn enemy as independent GameObject (not parented to castle)
+            // Use prefab's default rotation instead of forcing Quaternion.identity
+            GameObject enemy = Instantiate(_enemyUnitPrefab, position, _enemyUnitPrefab.transform.rotation);
+            // Don't parent to castle - units need to be independent to move properly
         }
     }
 

@@ -29,14 +29,33 @@ public class GameOverUI : MonoBehaviour
     
     private void Start()
     {
-        _victoryPanel.SetActive(false);
-        _defeatPanel.SetActive(false);
-        
+        Debug.Log("GameOverUI: Start() called");
+
+        if (_defeatPanel == null)
+        {
+            Debug.LogError("GameOverUI: _defeatPanel is NULL! Please assign it in the Inspector!");
+            int a;
+        }
+        else
+        {
+            Debug.Log("GameOverUI: _defeatPanel is assigned, setting to inactive");
+            _defeatPanel.SetActive(false);
+        }
+
+        if (_victoryPanel == null)
+        {
+            Debug.LogError("GameOverUI: _victoryPanel is NULL!");
+        }
+        else
+        {
+            _victoryPanel.SetActive(false);
+        }
+
         if (_continueButton != null)
         {
             _continueButton.onClick.AddListener(OnContinueClicked);
         }
-        
+
         if (_retryButton != null)
         {
             _retryButton.onClick.AddListener(OnRetryClicked);

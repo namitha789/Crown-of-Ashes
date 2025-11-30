@@ -49,7 +49,7 @@ public class OutpostHealthUI : MonoBehaviour
         _fillImage.fillAmount = healthPercent;
         
         // Color: Green → Red based on health
-        _fillImage.color = Color.Lerp(Color.red, Color.green, healthPercent);
+        // _fillImage.color = Color.Lerp(Color.red, Color.green, healthPercent);
         
         if (_hpText != null)
         {
