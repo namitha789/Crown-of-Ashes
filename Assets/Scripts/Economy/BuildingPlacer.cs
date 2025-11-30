@@ -26,6 +26,7 @@ public class BuildingPlacer : MonoBehaviour
     private int _buildingCostGold;
     private int _buildingCostMaterials;
     private GameObject _buildingPrefab;
+    private Material[] _originalMaterials; // Store original materials
     
     private void Awake()
     {
@@ -70,32 +71,50 @@ public class BuildingPlacer : MonoBehaviour
     {
         CancelPlacement();
     }
-    
+
     _buildingPrefab = buildingPrefab;
     _buildingCostGold = goldCost;
     _buildingCostMaterials = materialsCost;
-    
+
     // Instantiate with INACTIVE state to prevent Start() from running
     _currentBuildingPreview = Instantiate(buildingPrefab);
-    _currentBuildingPreview.SetActive(false);  // ← ADD THIS LINE
-    
+    _currentBuildingPreview.SetActive(false);
+
     _isPlacing = true;
-    
+
+    // Store original materials BEFORE any modifications (including inactive renderers)
+    Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>(true);
+    System.Collections.Generic.List<Material> originalMats = new System.Collections.Generic.List<Material>();
+
+    foreach (Renderer renderer in renderers)
+    {
+        if (renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+        {
+            // Store all materials from all slots
+            foreach (Material mat in renderer.sharedMaterials)
+            {
+                originalMats.Add(mat);
+            }
+        }
+    }
+
+    _originalMaterials = originalMats.ToArray();
+
     // Disable components during preview
     foreach (Collider col in _currentBuildingPreview.GetComponentsInChildren<Collider>())
     {
         col.enabled = false;
     }
-    
+
     Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
     if (buildingComponent != null)
     {
         buildingComponent.enabled = false;
     }
-    
+
     // Re-activate the preview (Start() won't run because component is disabled)
-    _currentBuildingPreview.SetActive(true);  // ← ADD THIS LINE
-    
+    _currentBuildingPreview.SetActive(true);
+
     Debug.Log($"Placing building. Cost: {goldCost} Gold, {materialsCost} Materials");
 }
     
@@ -115,11 +134,23 @@ public class BuildingPlacer : MonoBehaviour
             _currentBuildingPreview.transform.position = position;
             
             bool isValid = IsValidPlacement();
-            
-            Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
+            Material placementMaterial = isValid ? _validPlacementMaterial : _invalidPlacementMaterial;
+
+            // Apply to ALL renderers including inactive ones
+            Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>(true);
             foreach (Renderer renderer in renderers)
             {
-                renderer.material = isValid ? _validPlacementMaterial : _invalidPlacementMaterial;
+                // Apply to MeshRenderer and SkinnedMeshRenderer (ignore particles, UI, etc.)
+                if (renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+                {
+                    // Apply to all material slots
+                    Material[] materials = new Material[renderer.sharedMaterials.Length];
+                    for (int i = 0; i < materials.Length; i++)
+                    {
+                        materials[i] = placementMaterial;
+                    }
+                    renderer.sharedMaterials = materials;
+                }
             }
         }
     }
@@ -187,26 +218,39 @@ public class BuildingPlacer : MonoBehaviour
             {
                 col.enabled = true;
             }
-            
-            // Restore materials FIRST
-            Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>();
+
+            // Restore original materials
+            Renderer[] renderers = _currentBuildingPreview.GetComponentsInChildren<Renderer>(true);
+            int materialIndex = 0;
+
             foreach (Renderer renderer in renderers)
             {
-                // You need to restore the original material, not just change color
-                // For now, we'll assume you want to reset it
-                renderer.material.color = Color.white;
+                if (renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+                {
+                    Material[] restoredMaterials = new Material[renderer.sharedMaterials.Length];
+                    for (int i = 0; i < restoredMaterials.Length && materialIndex < _originalMaterials.Length; i++)
+                    {
+                        restoredMaterials[i] = _originalMaterials[materialIndex];
+                        materialIndex++;
+                    }
+                    renderer.sharedMaterials = restoredMaterials;
+                }
             }
-            
+
             // Re-enable Building component LAST (this triggers Start())
             Building buildingComponent = _currentBuildingPreview.GetComponent<Building>();
             if (buildingComponent != null)
             {
                 buildingComponent.enabled = true;  // ← This triggers Start() and begins construction
             }
-            
+
             Debug.Log("Building placed successfully!");
             _currentBuildingPreview = null;
             _isPlacing = false;
+        }
+        else
+        {
+            Debug.LogWarning("Not enough resources to place building!");
         }
     }
 }

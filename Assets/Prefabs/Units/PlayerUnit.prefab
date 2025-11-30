@@ -197,6 +197,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -33
       objectReference: {fileID: 0}
+    - target: {fileID: 2804809231261667692, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_fontSize
+      value: 26.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2804809231261667692, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9348f47baf541af49baad2bcd954464e, type: 2}
+    - target: {fileID: 2804809231261667692, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 26.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2804809231261667692, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3100099485838182316, guid: dd8f6e270ac7a4169a1692f3f3e0d384, type: 3}
       propertyPath: m_Name
       value: HealthBarCanvas
@@ -302,7 +318,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.3234596
+      value: 6.84
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalPosition.y
@@ -310,7 +326,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 15.508827
+      value: 79.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalRotation.w
@@ -703,9 +719,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.4
-  m_Height: 1.26
+  m_Height: 1.72
   m_Direction: 1
-  m_Center: {x: 0.06, y: 0.84, z: 0}
+  m_Center: {x: 0.06, y: 0.71, z: 0}
 --- !u!195 &6890258010562222117
 NavMeshAgent:
   m_ObjectHideFlags: 0

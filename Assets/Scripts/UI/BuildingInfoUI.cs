@@ -67,7 +67,7 @@ public class BuildingInfoUI : MonoBehaviour
         if (_selectedBuilding == null) return;
         
         // Update name and health
-        _buildingNameText.text = _selectedBuilding.BuildingName;
+        _buildingNameText.text = "Barrack";
         _buildingHealthText.text = $"HP: {_selectedBuilding.CurrentHealth}/{_selectedBuilding.MaxHealth}";
         
         // ========== NEW: UPDATE UPGRADE INFO ==========

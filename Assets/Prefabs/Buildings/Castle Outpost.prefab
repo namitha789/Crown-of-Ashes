@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 8246758486936171263}
   - component: {fileID: 6843420201843739247}
   - component: {fileID: 237321143972772750}
+  - component: {fileID: 1716019422931125720}
   m_Layer: 6
   m_Name: Castle Outpost
   m_TagString: Untagged
@@ -179,7 +180,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3006460421559552940}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db76042601b2e814cae98585a1373877, type: 3}
   m_Name: 
@@ -226,10 +227,34 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 0.5, y: 0.5, z: 0.5}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &1716019422931125720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3006460421559552940}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db695f4510c0f304d8558a6ff3a30304, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutpostAttackController
+  _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
+  _spawnPoints:
+  - {fileID: 48111045832118422}
+  - {fileID: 5237276454025342604}
+  - {fileID: 8899604015308519809}
+  - {fileID: 8838830863246208434}
+  _raidInterval: 10
+  _raidsPerInterval: 1
+  _counterattackUnits: 3
+  _counterattackCooldown: 15
+  _finalAssaultUnits: 5
+  _attacksEnabled: 0
 --- !u!1 &3279647670109376612
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,15 +566,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 43
+      value: 42.791664
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.4
+      value: 0.3999985
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 152.14
+      value: 151.85599
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalRotation.w
@@ -557,15 +582,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3245,9 +3270,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: efc97dde787593749bea1f9487287f94, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3458483619912828069}
-    - targetCorrespondingSourceObject: {fileID: -8918239769837617594, guid: efc97dde787593749bea1f9487287f94, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: efc97dde787593749bea1f9487287f94, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1182940409074064448}
+      addedObject: {fileID: 8212279713951894648}
   m_SourcePrefab: {fileID: 100100000, guid: efc97dde787593749bea1f9487287f94, type: 3}
 --- !u!1 &3844283486269030647 stripped
 GameObject:
@@ -3261,26 +3286,18 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3844283486269030647}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db76042601b2e814cae98585a1373877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleOutpost
-  _maxHealth: 20
+  _maxHealth: 500
   _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
   _spawnPoints:
   - {fileID: 48111045832118422}
   - {fileID: 5237276454025342604}
   - {fileID: 8899604015308519809}
-  - {fileID: 8838830863246208434}
-  - {fileID: 5331669833768513735}
-  - {fileID: 5331669833768513735}
-  - {fileID: 4235265311920903883}
-  - {fileID: 4265511289417893960}
-  - {fileID: 2408501913556714903}
-  - {fileID: 9012139779641505385}
-  - {fileID: 6870448699401115788}
-  _initialEnemyCount: 10
+  _initialEnemyCount: 0
   _rewardGold: 1000
   _rewardShards: 500
 --- !u!65 &3458483619912828069
@@ -3293,54 +3310,40 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.42, y: 1.5100002, z: 6.708417}
-  m_Center: {x: 4.47, y: -4.4, z: 0.49327427}
---- !u!1 &4441893427359728608 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8918239769837617594, guid: efc97dde787593749bea1f9487287f94, type: 3}
-  m_PrefabInstance: {fileID: 4150289877830368678}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1182940409074064448
+  m_Size: {x: 4.42, y: 1.7537186, z: 3.53}
+  m_Center: {x: 0.040000055, y: 0.73185956, z: -1.219918}
+--- !u!114 &8212279713951894648
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4441893427359728608}
+  m_GameObject: {fileID: 3844283486269030647}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Script: {fileID: 11500000, guid: db695f4510c0f304d8558a6ff3a30304, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
-  m_SerializedVersion: 0
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 756f2f64ac8e17d49a99e0fe8250186a, type: 2}
-  m_BuildHeightMesh: 0
+  m_EditorClassIdentifier: Assembly-CSharp::OutpostAttackController
+  _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
+  _spawnPoints:
+  - {fileID: 48111045832118422}
+  - {fileID: 5237276454025342604}
+  - {fileID: 8899604015308519809}
+  _raidInterval: 10
+  _raidsPerInterval: 1
+  _counterattackUnits: 3
+  _counterattackCooldown: 15
+  _finalAssaultUnits: 5
+  _attacksEnabled: 0
 --- !u!4 &4472764763902253645 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: efc97dde787593749bea1f9487287f94, type: 3}
@@ -3387,6 +3390,14 @@ PrefabInstance:
       value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -3396,7 +3407,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 74.35
+      value: 110.42
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3416,11 +3427,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 30.3
+      value: 34.6
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 37.4
+      value: 8.4
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3436,7 +3447,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 759419133779434394, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_ConstrainProportionsScale
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 986162618246165781, guid: 70711e3c7fcfd4e8c8dd7c2206c0dad2, type: 3}
       propertyPath: m_Sprite
@@ -3543,7 +3554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8485e82c21fb745b18abb2089eef5494, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutpostHealthUI
-  _outpost: {fileID: 8246758486936171263}
+  _outpost: {fileID: 7418968553879488037}
   _fillImage: {fileID: 192764880731657740}
   _nameText: {fileID: 0}
   _hpText: {fileID: 7961797809585885531}

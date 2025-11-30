@@ -12,7 +12,7 @@ public class ResourceDisplay : MonoBehaviour
     private void Start()
     {
         EventManager.StartListening("ResourcesUpdated", OnResourcesUpdated);
-        UpdateDisplay(200, 100, 0); // Initial values
+        UpdateDisplay(500, 300, 0); // Initial values
     }
     
     private void OnDestroy()
@@ -32,7 +32,7 @@ public class ResourceDisplay : MonoBehaviour
     {
         _goldText.text = $"Gold: {gold}";
         _materialsText.text = $"Materials: {materials}";
-        _influenceText.text = $"Influence: {influence}";
+        // _influenceText.text = $"Influence: {influence}";
     }
 }
 

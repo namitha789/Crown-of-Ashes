@@ -4,7 +4,7 @@ using System.Collections;
 public class Building : MonoBehaviour
 {
     [Header("Building Settings")]
-    [SerializeField] private string _buildingName = "Building";
+    [SerializeField] private string _buildingName = "Barrack";
     [SerializeField] protected int _maxHealth = 200;
     [SerializeField] protected float _constructionTime = 5f;
     [SerializeField] private GameObject _constructionEffect;

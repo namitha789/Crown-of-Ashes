@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CommanderData
   commanderName: 
   description: Melee combat specialist
-  abilityName: War Cry
+  abilityName: Special Attack
   abilityDescription: Deals 50 damage in area
-  abilityCooldown: 60
-  abilityDamage: 50
-  abilityRadius: 5
-  startingGold: 200
-  startingMaterials: 100
+  abilityCooldown: 5
+  abilityDamage: 70
+  abilityRadius: 10
+  startingGold: 500
+  startingMaterials: 300

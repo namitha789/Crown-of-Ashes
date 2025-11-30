@@ -16,6 +16,6 @@ public class CommanderData : ScriptableObject
     public float abilityRadius = 5f;
     
     [Header("Stats")]
-    public int startingGold = 200;
-    public int startingMaterials = 100;
+    public int startingGold = 500;
+    public int startingMaterials = 300;
 }

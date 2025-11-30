@@ -20,6 +20,7 @@ public class Barracks : Building
     private bool _isProducingUnit = false;
     private float _currentProductionTime = 0f;
     private Camera _mainCamera;
+    private int _spawnedUnitCount = 0; // Track number of spawned units for positioning
 
     public int QueueCount => _productionQueue.Count + (_isProducingUnit ? 1 : 0);
     public bool IsProducing => _isProducing;
@@ -160,15 +161,24 @@ public class Barracks : Building
             return;
         }
 
-        Vector3 spawnPos = _spawnPoint.position;
-        bool onNavMesh = NavMesh.SamplePosition(_spawnPoint.position, out NavMeshHit hit, 5f, NavMesh.AllAreas);
-        
+        // Add random offset to spawn position to avoid exact overlap
+        Vector3 randomOffset = new Vector3(
+            Random.Range(-1.5f, 1.5f),
+            0f,
+            Random.Range(-1.5f, 1.5f)
+        );
+
+        Vector3 spawnPos = _spawnPoint.position + randomOffset;
+        bool onNavMesh = NavMesh.SamplePosition(spawnPos, out NavMeshHit hit, 5f, NavMesh.AllAreas);
+
         if (onNavMesh)
         {
             spawnPos = hit.position;
         }
 
-        GameObject unit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
+        // Face spawn point's forward direction for consistent orientation
+        Quaternion spawnRotation = _spawnPoint.rotation;
+        GameObject unit = Instantiate(unitPrefab, spawnPos, spawnRotation);
         
         if (unit == null)
         {
@@ -203,8 +213,21 @@ public class Barracks : Building
                     }
                 }
                 
-                Vector3 rallyPoint = _spawnPoint.position + _spawnPoint.forward * 5f;
-                
+                // Calculate rally point with formation offset
+                Vector3 baseRallyPoint = _spawnPoint.position + _spawnPoint.forward * 8f;
+
+                // Apply formation offset so units don't stack
+                int unitsPerRow = 5; // 5 units per row
+                int row = _spawnedUnitCount / unitsPerRow;
+                int col = _spawnedUnitCount % unitsPerRow;
+
+                // Increased spacing from 2f to 4f for more personal space
+                // Center the formation: (col - 2) centers around middle position
+                Vector3 offset = _spawnPoint.right * (col - 2) * 4f + _spawnPoint.forward * row * 4f;
+                Vector3 rallyPoint = baseRallyPoint + offset;
+
+                _spawnedUnitCount++; // Increment for next unit
+
                 if (agent.isOnNavMesh)
                 {
                     agent.SetDestination(rallyPoint);

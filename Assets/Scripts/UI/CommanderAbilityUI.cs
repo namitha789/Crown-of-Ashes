@@ -68,7 +68,7 @@ public class CommanderAbilityUI : MonoBehaviour
         }
         else
         {
-            _cooldownText.text = "READY";
+            _cooldownText.text = _abilityNameText.text;
 
             if (_instructionsText != null)
             {

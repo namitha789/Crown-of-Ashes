@@ -5,8 +5,8 @@ public class ResourceManager : MonoBehaviour
     public static ResourceManager Instance { get; private set; }
     
     [Header("Starting Resources")]
-    [SerializeField] private int _startingGold = 200;
-    [SerializeField] private int _startingMaterials = 100;
+    [SerializeField] private int _startingGold = 500;
+    [SerializeField] private int _startingMaterials = 300;
     [SerializeField] private int _startingInfluence = 0;
     
     private ResourceData _playerResources;
