@@ -31,11 +31,9 @@ public class OutpostHealthUI : MonoBehaviour
             return;
         }
 
-        // Simple billboard - copy camera rotation but keep healthbar upright
-        if (_mainCamera != null)
-        {
-            transform.rotation = Quaternion.Euler(0f, _mainCamera.transform.eulerAngles.y, 0f);
-        }
+        // Keep healthbar completely fixed - no rotation at all
+        // This prevents it from rotating with camera movement (WASD) or rotation (Q/E)
+        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 
         UpdateHealthBar();
     }

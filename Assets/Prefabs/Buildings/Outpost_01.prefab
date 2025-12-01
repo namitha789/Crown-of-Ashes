@@ -76,7 +76,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1656428719037592396}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db695f4510c0f304d8558a6ff3a30304, type: 3}
   m_Name: 
@@ -87,11 +87,11 @@ MonoBehaviour:
   - {fileID: 5871565411244332119}
   - {fileID: 7591658670367055558}
   - {fileID: 3602859721143885060}
-  _raidInterval: 10
+  _raidInterval: 30
   _raidsPerInterval: 1
-  _counterattackUnits: 3
+  _counterattackUnits: 1
   _counterattackCooldown: 15
-  _finalAssaultUnits: 5
+  _finalAssaultUnits: 1
   _attacksEnabled: 1
 --- !u!114 &4149011227571158382
 MonoBehaviour:
@@ -105,14 +105,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db76042601b2e814cae98585a1373877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleOutpost
-  _maxHealth: 50
+  _maxHealth: 500
   _enemyUnitPrefab: {fileID: 171533493541654795, guid: ef2614b92fdeaf448a75331ae937a19f, type: 3}
   _spawnPoints:
   - {fileID: 3208565689044856084}
   - {fileID: 5871565411244332119}
   - {fileID: 7591658670367055558}
   - {fileID: 3602859721143885060}
-  _initialEnemyCount: 0
+  _initialEnemyCount: 3
   _rewardGold: 100
   _rewardShards: 50
 --- !u!65 &2356975457328929924

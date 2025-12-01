@@ -235,7 +235,7 @@ public class Unit : MonoBehaviour
 
         // Perform attack
         _lastAttackTime = Time.time;
-        target.TakeDamage(_attackDamage);
+        target.TakeDamage(_attackDamage, this);
 
         // Face the target
         transform.LookAt(target.transform);
@@ -279,7 +279,7 @@ public class Unit : MonoBehaviour
         Debug.Log($"{gameObject.name} attacked outpost for {_attackDamage} damage!");
     }
     
-      public void TakeDamage(int damage)
+      public void TakeDamage(int damage, Unit attacker = null)
       {
           if (_isDead) return;
 
@@ -288,10 +288,23 @@ public class Unit : MonoBehaviour
 
           Debug.Log($"{gameObject.name} took {damage} damage! HP: {_currentHealth}/{_maxHealth}");
 
+          // Defensive reaction: If attacked by enemy while attacking outpost, switch to enemy
+          if (attacker != null && attacker.IsPlayerUnit != this.IsPlayerUnit)
+          {
+              // If currently attacking an outpost and an enemy attacks, prioritize the enemy
+              if (_currentState == CombatState.AttackingOutpost)
+              {
+                  _currentOutpostTarget = null;
+                  _currentTarget = attacker;
+                  ChangeState(CombatState.Chasing);
+                  Debug.Log($"{gameObject.name} switching from outpost to defend against {attacker.gameObject.name}!");
+              }
+          }
+
           // Trigger damage event
           EventManager.TriggerEvent("UnitDamaged", new CombatData
           {
-              Attacker = null,
+              Attacker = attacker,
               Target = this,
               Damage = damage,
               HitPosition = transform.position
@@ -310,7 +323,7 @@ public class Unit : MonoBehaviour
           }
 
           // Deal damage
-          target.TakeDamage(_attackDamage);
+          target.TakeDamage(_attackDamage, this);
       }    
     private void Die()
     {
