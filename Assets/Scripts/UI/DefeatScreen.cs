@@ -13,6 +13,11 @@ public class DefeatScreen : MonoBehaviour
     [SerializeField] private Button _retryButton;
     [SerializeField] private Button _mainMenuButton;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _defeatMusic;
+    [SerializeField] private AudioSource _musicSource;
+    [SerializeField] private float _musicVolume = 0.5f;
+
     private void Start()
     {
         if (_defeatPanel != null)
@@ -74,10 +79,24 @@ public class DefeatScreen : MonoBehaviour
             }
         }
 
+        // Play defeat music
+        PlayDefeatMusic();
+
         // Pause game
         Time.timeScale = 0f;
 
         Debug.Log("Defeat screen displayed!");
+    }
+
+    private void PlayDefeatMusic()
+    {
+        if (_defeatMusic != null && _musicSource != null)
+        {
+            _musicSource.clip = _defeatMusic;
+            _musicSource.loop = true;
+            _musicSource.volume = _musicVolume;
+            _musicSource.Play();
+        }
     }
 
     private void OnRetryClicked()

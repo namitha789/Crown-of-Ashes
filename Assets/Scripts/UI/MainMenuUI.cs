@@ -10,12 +10,29 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button _quitButton;
     [SerializeField] private TextMeshProUGUI _statsText;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _menuMusic;
+    [SerializeField] private AudioSource _musicSource;
+    [SerializeField] private float _musicVolume = 0.5f;
+
     private void Start()
     {
         _startButton.onClick.AddListener(OnStartClicked);
         _quitButton.onClick.AddListener(OnQuitClicked);
 
         UpdateStats();
+        PlayMenuMusic();
+    }
+
+    private void PlayMenuMusic()
+    {
+        if (_menuMusic != null && _musicSource != null)
+        {
+            _musicSource.clip = _menuMusic;
+            _musicSource.loop = true;
+            _musicSource.volume = _musicVolume;
+            _musicSource.Play();
+        }
     }
 
     private void UpdateStats()

@@ -31,7 +31,15 @@ public class Unit : MonoBehaviour
 
     [Header("Enemy Detection")]
     [SerializeField] private LayerMask _enemyLayer;
-    
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip _footstepSound;
+    [SerializeField] private AudioClip _swordSliceSound;
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private float _footstepVolume = 0.5f;
+    [SerializeField] private float _attackSoundVolume = 1f;
+    [SerializeField] private float _footstepInterval = 0.5f; // Time between footstep sounds
+
     private NavMeshAgent _navAgent;
     private int _currentHealth;
     private bool _isSelected;
@@ -41,6 +49,7 @@ public class Unit : MonoBehaviour
     private bool _isDead = false;
     private float _lastAttackTime = 0f;
     private CombatState _currentState = CombatState.Idle;
+    private float _lastFootstepTime = 0f;
 
     private Animator _animator;
     
@@ -246,6 +255,9 @@ public class Unit : MonoBehaviour
             _animator.SetTrigger("Attack");
         }
 
+        // Play sword slice sound
+        PlaySwordSliceSound();
+
         // Trigger attack event for animation/VFX
         EventManager.TriggerEvent("UnitAttacked", new CombatData(this, target, _attackDamage, target.transform.position));
 
@@ -275,6 +287,9 @@ public class Unit : MonoBehaviour
         {
             _animator.SetTrigger("Attack");
         }
+
+        // Play sword slice sound
+        PlaySwordSliceSound();
 
         Debug.Log($"{gameObject.name} attacked outpost for {_attackDamage} damage!");
     }
@@ -493,6 +508,32 @@ public class Unit : MonoBehaviour
         // Set speed parameter based on NavMeshAgent velocity
         float speed = _navAgent.velocity.magnitude;
         _animator.SetFloat("Speed", speed);
+
+        // Play footstep sounds while moving
+        if (speed > 0.1f) // Unit is moving
+        {
+            if (Time.time >= _lastFootstepTime + _footstepInterval)
+            {
+                PlayFootstepSound();
+                _lastFootstepTime = Time.time;
+            }
+        }
+    }
+
+    private void PlayFootstepSound()
+    {
+        if (_footstepSound != null && _audioSource != null)
+        {
+            _audioSource.PlayOneShot(_footstepSound, _footstepVolume);
+        }
+    }
+
+    private void PlaySwordSliceSound()
+    {
+        if (_swordSliceSound != null && _audioSource != null)
+        {
+            _audioSource.PlayOneShot(_swordSliceSound, _attackSoundVolume);
+        }
     }
 
 }

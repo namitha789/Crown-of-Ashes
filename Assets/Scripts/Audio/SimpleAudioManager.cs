@@ -8,20 +8,35 @@ public class SimpleAudioManager : MonoBehaviour
     [SerializeField] private AudioClip _buildSound;
     [SerializeField] private AudioClip _abilitySound;
     [SerializeField] private AudioClip _backgroundMusic;
-    
+
+    [Header("Ambient/Environment Sounds")]
+    [SerializeField] private AudioClip _ambientSound;
+    [SerializeField] private float _ambientVolume = 0.3f;
+
     [Header("Audio Sources")]
     [SerializeField] private AudioSource _sfxSource;
     [SerializeField] private AudioSource _musicSource;
-    
+    [SerializeField] private AudioSource _ambientSource;
+
     private void Start()
     {
-        if (_backgroundMusic != null)
+        // Play background music
+        if (_backgroundMusic != null && _musicSource != null)
         {
             _musicSource.clip = _backgroundMusic;
             _musicSource.loop = true;
             _musicSource.Play();
         }
-        
+
+        // Play ambient/environment sounds
+        if (_ambientSound != null && _ambientSource != null)
+        {
+            _ambientSource.clip = _ambientSound;
+            _ambientSource.loop = true;
+            _ambientSource.volume = _ambientVolume;
+            _ambientSource.Play();
+        }
+
         EventManager.StartListening("UnitDamaged", OnUnitDamaged);
         EventManager.StartListening("UnitDied", OnUnitDied);
         EventManager.StartListening("BuildingCompleted", OnBuildingCompleted);

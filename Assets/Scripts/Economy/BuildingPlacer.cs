@@ -6,7 +6,7 @@ public class BuildingPlacer : MonoBehaviour
     [SerializeField] private GameObject _barracksPrefab;
     [SerializeField] private GameObject _resourceCollectorPrefab;
     [SerializeField] private GameObject _towerPrefab;
-    
+
     [Header("Costs")]
     [SerializeField] private int _barracksCostGold = 100;
     [SerializeField] private int _barracksCostMaterials = 50;
@@ -14,12 +14,17 @@ public class BuildingPlacer : MonoBehaviour
     [SerializeField] private int _collectorCostMaterials = 25;
     [SerializeField] private int _towerCostGold = 150;
     [SerializeField] private int _towerCostMaterials = 75;
-    
+
     [Header("Placement Settings")]
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private Material _validPlacementMaterial;
     [SerializeField] private Material _invalidPlacementMaterial;
-    
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip _buildingPlacedSound;
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private float _placementSoundVolume = 1f;
+
     private GameObject _currentBuildingPreview;
     private bool _isPlacing;
     private Camera _mainCamera;
@@ -244,6 +249,9 @@ public class BuildingPlacer : MonoBehaviour
                 buildingComponent.enabled = true;  // ← This triggers Start() and begins construction
             }
 
+            // Play building placed sound
+            PlayBuildingPlacedSound();
+
             Debug.Log("Building placed successfully!");
             _currentBuildingPreview = null;
             _isPlacing = false;
@@ -254,6 +262,14 @@ public class BuildingPlacer : MonoBehaviour
         }
     }
 }
+
+    private void PlayBuildingPlacedSound()
+    {
+        if (_buildingPlacedSound != null && _audioSource != null)
+        {
+            _audioSource.PlayOneShot(_buildingPlacedSound, _placementSoundVolume);
+        }
+    }
     
     private void CancelPlacement()
     {

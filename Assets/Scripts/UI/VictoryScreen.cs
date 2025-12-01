@@ -17,6 +17,11 @@ public class VictoryScreen : MonoBehaviour
     [SerializeField] private int _baseAshShardReward = 100;
     [SerializeField] private int _goldReward = 200;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _victoryMusic;
+    [SerializeField] private AudioSource _musicSource;
+    [SerializeField] private float _musicVolume = 0.5f;
+
     private void Start()
     {
         if (_victoryPanel != null)
@@ -78,10 +83,24 @@ public class VictoryScreen : MonoBehaviour
                                $"+ {_goldReward} Gold (spent during battle)";
         }
 
+        // Play victory music
+        PlayVictoryMusic();
+
         // Pause game
         Time.timeScale = 0f;
 
         Debug.Log("Victory screen displayed!");
+    }
+
+    private void PlayVictoryMusic()
+    {
+        if (_victoryMusic != null && _musicSource != null)
+        {
+            _musicSource.clip = _victoryMusic;
+            _musicSource.loop = true;
+            _musicSource.volume = _musicVolume;
+            _musicSource.Play();
+        }
     }
 
     private void OnContinueClicked()
