@@ -1975,7 +1975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aaebbd72550fd34a8b692e51c9781f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameConditions
-  _outpostsToDestroy: 5
+  _outpostsToDestroy: 4
 --- !u!114 &468492002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10790,58 +10790,6 @@ PrefabInstance:
     - target: {fileID: 3006460421559552940, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
       propertyPath: m_Name
       value: Castle Outpost
-      objectReference: {fileID: 0}
-    - target: {fileID: 4472764763902253645, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -49
-      objectReference: {fileID: 0}
-    - target: {fileID: 4472764763902253645, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -148.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4472764763902253645, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4472764763902253645, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4472764763902253645, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -215.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -57.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4762746150254140333, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 2.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6843420201843739247, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7961797809585885531, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_fontSize
-      value: 26.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 7961797809585885531, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 9348f47baf541af49baad2bcd954464e, type: 2}
-    - target: {fileID: 7961797809585885531, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 26.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 7961797809585885531, guid: 1448632a77794c64db2acf6d6ba84480, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
