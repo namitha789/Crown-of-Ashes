@@ -100,6 +100,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7459139366804196718}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6715781016892744930}
   m_SourcePrefab: {fileID: 100100000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
 --- !u!4 &4212018673174143362 stripped
 Transform:
@@ -159,3 +162,19 @@ MonoBehaviour:
   _trainingCost: 5
   _trainingTime: 3
   _maxQueueSize: 5
+--- !u!208 &6715781016892744930
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4212018673174248866}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.033, y: 0.041, z: 0.034}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.004, y: 0.009000001, z: -0.001}
+  m_TimeToStationary: 0.5
