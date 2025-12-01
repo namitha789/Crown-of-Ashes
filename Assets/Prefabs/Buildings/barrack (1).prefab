@@ -49,15 +49,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.51
+      value: -43.838673
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.17
+      value: 3.167522
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10.65
+      value: -25.148354
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ceae2dc210e1e7e459a3eb0a6de39b4d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -148,14 +148,14 @@ MonoBehaviour:
   _maxHealth: 200
   _constructionTime: 5
   _constructionEffect: {fileID: 0}
-  _constructionCostGold: 50
-  _constructionCostMaterials: 25
+  _constructionCostGold: 20
+  _constructionCostMaterials: 5
   _currentLevel: 1
   _maxLevel: 3
   _upgradeGoldCost: 100
   _upgradeMaterialsCost: 50
   _warriorPrefab: {fileID: 5413480432836569717, guid: 9dece843ad145394bbecd0272b7db729, type: 3}
   _spawnPoint: {fileID: 5041265718565021740}
-  _trainingCost: 50
+  _trainingCost: 5
   _trainingTime: 3
   _maxQueueSize: 5

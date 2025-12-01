@@ -318,15 +318,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.7
+      value: 3.2000067
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.0000016093254
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 79.1
+      value: 89.05247
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3c7163d7563ddfb4393dfb519c609cde, type: 3}
       propertyPath: m_LocalRotation.w
@@ -785,11 +785,11 @@ MonoBehaviour:
   _enemyLayer:
     serializedVersion: 2
     m_Bits: 64
-  _footstepSound: {fileID: 8300000, guid: c335d2e9a3e7ff74ca177df3cd70f4d1, type: 3}
+  _footstepSound: {fileID: 0}
   _swordSliceSound: {fileID: 8300000, guid: 9e5bd373b0f759a4d9f4da8733c3163c, type: 3}
   _audioSource: {fileID: -7081065559180188400}
   _footstepVolume: 0.5
-  _attackSoundVolume: 1
+  _attackSoundVolume: 0.4
   _footstepInterval: 0.5
 --- !u!95 &5402935611338702341
 Animator:

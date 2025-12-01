@@ -275,9 +275,9 @@ public class Unit : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, outpost.transform.position);
         if (distanceToTarget > _attackRange) return;
 
-        // Perform attack
+        // Perform attack - pass this unit as the attacker for counterattack
         _lastAttackTime = Time.time;
-        outpost.TakeDamage(_attackDamage);
+        outpost.TakeDamage(_attackDamage, this);
 
         // Face the target
         transform.LookAt(outpost.transform);

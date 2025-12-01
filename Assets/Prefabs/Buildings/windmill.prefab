@@ -14,15 +14,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c784118e8dac13548832e0d70372f14f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 18.337372
+      value: -62.726074
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c784118e8dac13548832e0d70372f14f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.00000073519124
+      value: 0.0000012120283
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c784118e8dac13548832e0d70372f14f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -14.658585
+      value: -24.440134
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c784118e8dac13548832e0d70372f14f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -81,8 +81,12 @@ MonoBehaviour:
   _maxHealth: 100
   _constructionTime: 3
   _constructionEffect: {fileID: 0}
-  _constructionCostGold: 75
-  _constructionCostMaterials: 25
-  _goldIncomeAmount: 5
-  _materialsIncomeAmount: 3
+  _constructionCostGold: 10
+  _constructionCostMaterials: 5
+  _currentLevel: 1
+  _maxLevel: 3
+  _upgradeGoldCost: 100
+  _upgradeMaterialsCost: 50
+  _goldIncomeAmount: 50
+  _materialsIncomeAmount: 50
   _incomeInterval: 5

@@ -95,7 +95,7 @@ public class BuildingInfoUI : MonoBehaviour
         _queueText.gameObject.SetActive(true);
         _progressBar.gameObject.SetActive(true);
         
-        _actionButtonText.text = "Train Warrior (50 Gold)";
+        _actionButtonText.text = "Train Warrior (5 Gold)";
         _queueText.text = $"Queue: {barracks.QueueCount}/5";
         
         if (barracks.IsProducing)

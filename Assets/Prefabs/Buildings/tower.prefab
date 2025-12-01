@@ -14,15 +14,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -11.892209
+      value: -54.22694
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.0000021696092
+      value: 0.00000026226044
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.2248383
+      value: -25.849724
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1b1855b9ff55aff4e85433c21d07ca92, type: 3}
       propertyPath: m_LocalRotation.w
@@ -110,6 +110,10 @@ MonoBehaviour:
   _constructionEffect: {fileID: 0}
   _constructionCostGold: 0
   _constructionCostMaterials: 0
+  _currentLevel: 1
+  _maxLevel: 3
+  _upgradeGoldCost: 100
+  _upgradeMaterialsCost: 50
   _attackRange: 10
   _attackDamage: 20
   _attackCooldown: 2
@@ -134,5 +138,9 @@ MonoBehaviour:
   _maxHealth: 200
   _constructionTime: 0
   _constructionEffect: {fileID: 0}
-  _constructionCostGold: 50
-  _constructionCostMaterials: 25
+  _constructionCostGold: 15
+  _constructionCostMaterials: 5
+  _currentLevel: 1
+  _maxLevel: 3
+  _upgradeGoldCost: 100
+  _upgradeMaterialsCost: 50

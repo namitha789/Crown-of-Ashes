@@ -79,6 +79,9 @@ public class DefeatScreen : MonoBehaviour
             }
         }
 
+        // Stop gameplay audio
+        StopGameplayAudio();
+
         // Play defeat music
         PlayDefeatMusic();
 
@@ -86,6 +89,23 @@ public class DefeatScreen : MonoBehaviour
         Time.timeScale = 0f;
 
         Debug.Log("Defeat screen displayed!");
+    }
+
+    private void StopGameplayAudio()
+    {
+        // Find and stop SimpleAudioManager's audio sources
+        SimpleAudioManager audioManager = FindFirstObjectByType<SimpleAudioManager>();
+        if (audioManager != null)
+        {
+            AudioSource[] audioSources = audioManager.GetComponents<AudioSource>();
+            foreach (AudioSource source in audioSources)
+            {
+                if (source != null && source.isPlaying)
+                {
+                    source.Stop();
+                }
+            }
+        }
     }
 
     private void PlayDefeatMusic()

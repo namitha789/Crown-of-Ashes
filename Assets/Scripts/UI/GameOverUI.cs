@@ -65,28 +65,51 @@ public class GameOverUI : MonoBehaviour
     private void OnGameWon(object data)
     {
         Time.timeScale = 0f; // Pause game
-        
+
+        // Stop gameplay audio
+        StopGameplayAudio();
+
         _victoryPanel.SetActive(true);
-        
+
         // Calculate rewards (from ProgressionManager)
         int goldEarned = ProgressionManager.Instance.GetGoldEarned();
         int ashShards = ProgressionManager.Instance.GetAshShardsEarned();
-        
+
         if (_rewardsText != null)
         {
             _rewardsText.text = $"Rewards:\n+{goldEarned} Gold\n+{ashShards} Ash Shards";
         }
-        
+
         Debug.Log("Victory screen displayed!");
     }
-    
+
     private void OnGameLost(object data)
     {
         Time.timeScale = 0f; // Pause game
-        
+
+        // Stop gameplay audio
+        StopGameplayAudio();
+
         _defeatPanel.SetActive(true);
-        
+
         Debug.Log("Defeat screen displayed!");
+    }
+
+    private void StopGameplayAudio()
+    {
+        // Find and stop SimpleAudioManager's audio sources
+        SimpleAudioManager audioManager = FindFirstObjectByType<SimpleAudioManager>();
+        if (audioManager != null)
+        {
+            AudioSource[] audioSources = audioManager.GetComponents<AudioSource>();
+            foreach (AudioSource source in audioSources)
+            {
+                if (source != null && source.isPlaying)
+                {
+                    source.Stop();
+                }
+            }
+        }
     }
     
     private void OnContinueClicked()

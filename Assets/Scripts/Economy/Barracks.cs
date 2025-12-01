@@ -11,7 +11,7 @@ public class Barracks : Building
     [Header("Unit Production")]
     [SerializeField] private GameObject _warriorPrefab;
     [SerializeField] private Transform _spawnPoint;
-    [SerializeField] private int _trainingCost = 50;
+    [SerializeField] private int _trainingCost = 5;
     [SerializeField] private float _trainingTime = 3f;
     [SerializeField] private int _maxQueueSize = 5;
 

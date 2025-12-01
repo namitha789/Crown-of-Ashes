@@ -10,8 +10,12 @@ public class SimpleOutpost : MonoBehaviour
     [SerializeField] private int _rewardGold = 100;
     [SerializeField] private int _rewardShards = 50;
 
+    [Header("Defense Settings")]
+    [SerializeField] private float _defenseRadius = 20f; // How far to search for defending units
+
     private int _currentHealth;
     private bool _isDestroyed = false;
+    private Unit _lastAttacker; // Track who attacked us last
 
     public bool IsDestroyed => _isDestroyed;
     public int CurrentHealth => _currentHealth;
@@ -52,19 +56,45 @@ public class SimpleOutpost : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, Unit attacker = null)
     {
         if (_isDestroyed) return;
 
         _currentHealth -= damage;
         _currentHealth = Mathf.Max(_currentHealth, 0);
 
-        // NEW: Trigger event for counterattack system
+        // Store attacker and trigger counterattack
+        if (attacker != null && attacker.IsPlayerUnit)
+        {
+            _lastAttacker = attacker;
+            TriggerCounterattack(attacker);
+        }
+
+        // Trigger event for counterattack system
         EventManager.TriggerEvent("OutpostDamaged", this);
 
         if (_currentHealth <= 0)
         {
             DestroyOutpost();
+        }
+    }
+
+    private void TriggerCounterattack(Unit target)
+    {
+        // Find all enemy units near this outpost
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, _defenseRadius);
+
+        foreach (Collider col in nearbyColliders)
+        {
+            Unit unit = col.GetComponent<Unit>();
+
+            // If it's an enemy unit (not player) and not dead
+            if (unit != null && !unit.IsPlayerUnit && !unit.IsDead)
+            {
+                // Command them to attack the player who attacked the outpost
+                unit.SetTarget(target);
+                Debug.Log($"{unit.gameObject.name} defending outpost, targeting {target.gameObject.name}");
+            }
         }
     }
 
@@ -88,5 +118,13 @@ public class SimpleOutpost : MonoBehaviour
         EventManager.TriggerEvent("OutpostDestroyed", this);
 
         Destroy(gameObject);
+    }
+
+    // Visual debug in Scene view
+    private void OnDrawGizmosSelected()
+    {
+        // Draw defense radius
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _defenseRadius);
     }
 }
