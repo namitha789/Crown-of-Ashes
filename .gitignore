@@ -99,4 +99,4 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 # macOS system files
-.DS_Store
+.DS_Store.claude/
